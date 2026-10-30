@@ -281,7 +281,8 @@ public static class ProjectBuilder
         Pic("Lever hub rim", cabinet, 303, -152, 54, 54, gold, circle);
         Pic("Lever hub", cabinet, 303, -152, 40, 40, new Color(.14f, .08f, .04f), circle);
         var pivot = Rect("Lever pivot", cabinet, 303, -152, 60, 170);
-        var lever = Pic("Pull lever", pivot, 0, 84, 57, 168, Color.white, Crop("slot-machine2", new Rect(673, 58, 92, 270), "LeverTexture"));
+        var lever = Pic("Pull lever", pivot, 0, 0, 57, 168, Color.white, Crop("slot-machine2", new Rect(673, 58, 92, 270), "LeverTexture"));
+        lever.rectTransform.pivot = new Vector2(.5f, 0f);
         lever.preserveAspect = true;
         lever.raycastTarget = true;
         game.leverButton = lever.gameObject.AddComponent<Button>();
