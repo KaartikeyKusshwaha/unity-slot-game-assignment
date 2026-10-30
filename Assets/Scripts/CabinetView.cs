@@ -6,7 +6,12 @@ namespace SlotGame
 {
     public class CabinetView : MonoBehaviour
     {
-        public RectTransform cabinet, lever;
+        private const float LeverPullAngle = 55f;
+        private const float PunchDuration = .1f;
+        private const float PunchStrength = .018f;
+
+        public RectTransform cabinet;
+        public RectTransform lever;
         public Image pressedLeverTip;
         public Image transitionFade;
         public PresentationConfig config;
@@ -32,7 +37,8 @@ namespace SlotGame
             Vector3 initialScale = cabinet.localScale;
             for (float time = 0; time < config.zoomSeconds; time += Time.unscaledDeltaTime)
             {
-                float eased = Ease.InOut(Mathf.Clamp01(time / config.zoomSeconds));
+                float progress = Mathf.Clamp01(time / config.zoomSeconds);
+                float eased = Ease.InOut(progress);
                 cabinet.anchoredPosition = Vector2.LerpUnclamped(from, destination, eased);
                 cabinet.localScale = Vector3.LerpUnclamped(initialScale, Vector3.one * scale, eased);
                 yield return null;
@@ -54,7 +60,7 @@ namespace SlotGame
                 audioPlayer.Play(audioPlayer.latch, .5f);
                 yield break;
             }
-            yield return RotateLever(55, config.pullSeconds, true);
+            yield return RotateLever(LeverPullAngle, config.pullSeconds, true);
             audioPlayer.Play(audioPlayer.latch, .6f);
             pressedLeverTip.gameObject.SetActive(true);
             yield return RotateLever(0, config.leverReturnSeconds, false);
@@ -63,9 +69,10 @@ namespace SlotGame
         private IEnumerator Punch()
         {
             Vector3 from = cabinet.localScale;
-            for (float time = 0; time < .1f; time += Time.unscaledDeltaTime)
+            for (float time = 0; time < PunchDuration; time += Time.unscaledDeltaTime)
             {
-                cabinet.localScale = from * (1 - .018f * Mathf.Sin(time / .1f * Mathf.PI));
+                float progress = time / PunchDuration;
+                cabinet.localScale = from * (1 - PunchStrength * Mathf.Sin(progress * Mathf.PI));
                 yield return null;
             }
             cabinet.localScale = from;
@@ -76,7 +83,9 @@ namespace SlotGame
             for (float time = 0; time < seconds; time += Time.unscaledDeltaTime)
             {
                 float progress = Mathf.Clamp01(time / seconds);
-                lever.localRotation = Quaternion.Euler(0, 0, Mathf.LerpAngle(from, angle, easeIn ? Ease.In(progress) : Ease.Out(progress)));
+                float eased = easeIn ? Ease.In(progress) : Ease.Out(progress);
+                float rotation = Mathf.LerpAngle(from, angle, eased);
+                lever.localRotation = Quaternion.Euler(0, 0, rotation);
                 yield return null;
             }
             lever.localRotation = Quaternion.Euler(0, 0, angle);

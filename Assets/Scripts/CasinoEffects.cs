@@ -13,9 +13,11 @@ namespace SlotGame
         public RectTransform rewardCard;
         public CanvasGroup rewardGroup;
         public Text rewardAmount;
-        public Image[] lights, sideLights;
+        public Image[] lights;
+        public Image[] sideLights;
         public RectTransform[] particles;
-        public RectTransform balanceTarget, ambientLayer;
+        public RectTransform balanceTarget;
+        public RectTransform ambientLayer;
         public bool ReducedMotion
         {
             get; set;
@@ -33,7 +35,11 @@ namespace SlotGame
             float clock = Time.unscaledTime;
             if (ambientLayer != null)
             {
-                Vector2 target = ReducedMotion ? Vector2.zero : new Vector2((Input.mousePosition.x / Mathf.Max(1, Screen.width) - .5f) * 10, (Input.mousePosition.y / Mathf.Max(1, Screen.height) - .5f) * 6);
+                Vector2 target = ReducedMotion
+                    ? Vector2.zero
+                    : new Vector2(
+                        (Input.mousePosition.x / Mathf.Max(1, Screen.width) - .5f) * 10,
+                        (Input.mousePosition.y / Mathf.Max(1, Screen.height) - .5f) * 6);
                 ambientLayer.anchoredPosition = Vector2.Lerp(ambientLayer.anchoredPosition, target, 1 - Mathf.Exp(-Time.unscaledDeltaTime * 3));
             }
             for (int i = 0; i < lights.Length; i++)
@@ -49,7 +55,10 @@ namespace SlotGame
             if (celebrating && !collecting && !ReducedMotion)
                 for (int i = 0; i < particles.Length; i++)
                 {
-                    particles[i].anchoredPosition = new Vector2(-590 + i * 38 + Mathf.Sin(clock * 2 + i) * 24, 450 - Mathf.Repeat(clock * (130 + i % 5 * 20) + i * 67, 950));
+                    float horizontal = -590 + i * 38 + Mathf.Sin(clock * 2 + i) * 24;
+                    float fallSpeed = 130 + i % 5 * 20;
+                    float vertical = 450 - Mathf.Repeat(clock * fallSpeed + i * 67, 950);
+                    particles[i].anchoredPosition = new Vector2(horizontal, vertical);
                     particles[i].localRotation = Quaternion.Euler(0, 0, clock * 100 + i * 25);
                 }
         }

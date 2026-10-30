@@ -6,8 +6,18 @@ namespace SlotGame
     /// <summary>Bounded effects pool plus a dedicated, fading reel loop. No speech clips.</summary>
     public class GameAudio : MonoBehaviour
     {
-        public AudioSource source, loopSource;
-        public AudioClip click, entry, lever, spin, stop, win, collect, latch, tick, count;
+        public AudioSource source;
+        public AudioSource loopSource;
+        public AudioClip click;
+        public AudioClip entry;
+        public AudioClip lever;
+        public AudioClip spin;
+        public AudioClip stop;
+        public AudioClip win;
+        public AudioClip collect;
+        public AudioClip latch;
+        public AudioClip tick;
+        public AudioClip count;
         public int ReelTickCount
         {
             get; private set;
@@ -25,10 +35,12 @@ namespace SlotGame
         private readonly float[] lastTick = { -1, -1, -1 };
         private int remainingReels;
         private bool rolling;
-        private float motorStart, nextCount;
+        private float motorStart;
+        private float nextCount;
         private AudioSource[] pool;
         private readonly float[] gains = { 1, 1, 1, 1 };
-        private int nextVoice, lastClickFrame = -1;
+        private int nextVoice;
+        private int lastClickFrame = -1;
         private float master = 1;
         private bool muted;
         private Coroutine loopFade;
@@ -109,14 +121,19 @@ namespace SlotGame
             if (!rolling)
                 return;
             float acceleration = Mathf.Clamp01((Time.unscaledTime - motorStart) / .35f);
-            loopSource.pitch = Mathf.Lerp(.82f, 1.12f, acceleration) * Mathf.Lerp(.85f, 1, remainingReels / 3f);
-            loopSource.volume = master * .3f * Mathf.Lerp(.18f, 1, remainingReels / 3f);
+            float remainingReelBlend = remainingReels / 3f;
+            loopSource.pitch = Mathf.Lerp(.82f, 1.12f, acceleration)
+                * Mathf.Lerp(.85f, 1, remainingReelBlend);
+            loopSource.volume = master * .3f
+                * Mathf.Lerp(.18f, 1, remainingReelBlend);
         }
         public void StartReels()
         {
             if (loopFade != null)
                 StopCoroutine(loopFade);
-            ReelTickCount = RevealCount = CountTickCount = 0;
+            ReelTickCount = 0;
+            RevealCount = 0;
+            CountTickCount = 0;
             remainingReels = 3;
             rolling = true;
             motorStart = Time.unscaledTime;

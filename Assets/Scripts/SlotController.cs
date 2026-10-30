@@ -7,7 +7,16 @@ namespace SlotGame
 {
     public enum GameState
     {
-        Menu, Entering, Ready, Pulling, ZoomingIn, Spinning, Result, AwaitingCollect, Collecting, Returning
+        Menu,
+        Entering,
+        Ready,
+        Pulling,
+        ZoomingIn,
+        Spinning,
+        Result,
+        AwaitingCollect,
+        Collecting,
+        Returning
     }
 
     public class SlotController : MonoBehaviour
@@ -15,10 +24,26 @@ namespace SlotGame
         public SlotConfig config;
         public PresentationConfig presentation;
         public ReelView[] reels;
-        public Text credits, bet, lastWin, status, muteLabel, rewardLabel;
-        public Button previousBetButton, nextBetButton;
-        public Button leverButton, betButton, resetButton, helpButton, menuButton, collectButton, motionButton;
-        public GameObject helpPanel, resetPanel, settingsPanel, exitPanel, hud;
+        public Text credits;
+        public Text bet;
+        public Text lastWin;
+        public Text status;
+        public Text muteLabel;
+        public Text rewardLabel;
+        public Button previousBetButton;
+        public Button nextBetButton;
+        public Button leverButton;
+        public Button betButton;
+        public Button resetButton;
+        public Button helpButton;
+        public Button menuButton;
+        public Button collectButton;
+        public Button motionButton;
+        public GameObject helpPanel;
+        public GameObject resetPanel;
+        public GameObject settingsPanel;
+        public GameObject exitPanel;
+        public GameObject hud;
         public CanvasGroup menuGroup;
         public Slider volumeSlider;
         public Text motionLabel;
@@ -31,7 +56,11 @@ namespace SlotGame
         private int stoppedReels;
         private readonly Dictionary<CanvasGroup, int> panelTransitions = new Dictionary<CanvasGroup, int>();
         private bool settingsUpdating;
-        private bool ModalOpen => helpPanel.activeSelf || resetPanel.activeSelf || settingsPanel.activeSelf || exitPanel.activeSelf;
+        private bool ModalOpen =>
+            helpPanel.activeSelf
+            || resetPanel.activeSelf
+            || settingsPanel.activeSelf
+            || exitPanel.activeSelf;
 
         private void Start()
         {
@@ -69,7 +98,10 @@ namespace SlotGame
             muteLabel.text = data.muted ? "SOUND OFF" : "SOUND ON";
             bool ready = State == GameState.Ready && !data.pendingRound;
             leverButton.interactable = ready && data.credits >= config.bets[data.betIndex];
-            betButton.interactable = resetButton.interactable = helpButton.interactable = menuButton.interactable = ready;
+            betButton.interactable = ready;
+            resetButton.interactable = ready;
+            helpButton.interactable = ready;
+            menuButton.interactable = ready;
             previousBetButton.interactable = nextBetButton.interactable = ready;
             collectButton.interactable = State == GameState.AwaitingCollect;
             motionButton.interactable = State == GameState.Menu || ready;

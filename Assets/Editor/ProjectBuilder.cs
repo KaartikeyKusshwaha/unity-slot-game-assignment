@@ -11,10 +11,16 @@ using UnityEngine.EventSystems;
 public static class ProjectBuilder
 {
     static Font font;
-    static Sprite rounded, circle;
+    static Sprite rounded;
+    static Sprite circle;
     static PresentationConfig presentation;
     static GameAudio audio;
-    static Color gold = new Color(1, .79f, .35f), burgundy = new Color(.3f, .025f, .065f), ink = new Color(.055f, .02f, .045f);
+    static Color gold = new Color(1, .79f, .35f);
+    static Color burgundy = new Color(.3f, .025f, .065f);
+    static Color ink = new Color(.055f, .02f, .045f);
+
+    #region Scene element helpers
+
     static RectTransform Rect(string name, Transform p, float x, float y, float w, float h)
     {
         var r = new GameObject(name, typeof(RectTransform)).GetComponent<RectTransform>();
@@ -172,6 +178,11 @@ public static class ProjectBuilder
         motion.audioPlayer = audio;
         return button;
     }
+
+    #endregion
+
+    #region Scene creation
+
     public static void Create()
     {
         foreach (string path in Directory.GetFiles("Assets/UI", "*.png"))
@@ -202,6 +213,8 @@ public static class ProjectBuilder
         scaler.referenceResolution = new Vector2(1280, 800);
         scaler.matchWidthOrHeight = .5f;
         new GameObject("Event System", typeof(EventSystem), typeof(StandaloneInputModule));
+
+        // Create configuration and attach the components that control a round.
         var asset = ScriptableObject.CreateInstance<SlotConfig>();
         asset.symbols = new[] { Art("slot-symbol1"), Art("slot-symbol2"), Art("slot-symbol3"), Art("slot-symbol4") };
         var config = Upsert(asset, "Assets/Resources/GameConfig.asset");
@@ -227,6 +240,8 @@ public static class ProjectBuilder
         audio.win = Clip("win");
         audio.collect = Clip("collect");
         audio.loopSource.clip = Clip("rumble");
+
+        // Build the cabinet, masked reels and attached lever.
         var face = Crop("slot-machine4", new Rect(137, 0, 550, 624), "CabinetFace");
         var scenery = Rect("Ambient scenery", canvas.transform, 0, 0, 1500, 1100);
         Pic("Illustrated casino room", scenery, 0, 0, 1400, 880, Color.white, Art("CasinoRoom"));
@@ -288,6 +303,8 @@ public static class ProjectBuilder
             effects.sideLights[n] = Pic("Side sweep " + n, canvas.transform, n == 0 ? -600 : 600, 0, 72, 470, Color.clear, rounded);
             effects.sideLights[n].transform.SetSiblingIndex(1);
         }
+
+        // Place balance and round controls in a fixed HUD above the cabinet.
         var hud = Rect("Game HUD", canvas.transform, 0, 0, 1280, 800);
         game.hud = hud.gameObject;
         Pic("HUD background", hud, 0, 336, 1210, 104, new Color(.045f, .012f, .025f, .97f), rounded);
@@ -307,6 +324,8 @@ public static class ProjectBuilder
         game.status = Label("PULL THE LEVER  /  PRESS SPACE", hud, 0, -335, 740, 46, 22, gold);
         game.helpButton = Button("PAYOUTS", hud, -180, -375, 220, 42, game.ShowHelp);
         game.menuButton = Button("MENU", hud, 180, -375, 220, 42, game.MainMenu);
+
+        // Add the title, reward and help screens.
         var menu = Overlay("Main menu", canvas.transform);
         game.menuGroup = menu;
         menu.GetComponent<Image>().color = new Color(.035f, .015f, .11f, .25f);
@@ -390,6 +409,8 @@ public static class ProjectBuilder
         Button("BACK", settings.transform, 0, -169, 320, 62, game.CloseSettings);
         AtlasButton("Close settings", settings.transform, 365, 205, 54, "slot_machine_buttons-02", game.CloseSettings);
         settings.gameObject.SetActive(false);
+
+        // Connect global sound controls and the animated cabinet view.
         var mute = Button("SOUND ON", canvas.transform, 485, 262, 200, 40, game.ToggleMute);
         game.muteLabel = mute.GetComponentInChildren<Text>();
         Button("AUDIO", canvas.transform, -485, 262, 180, 40, game.ShowSettings);
@@ -415,6 +436,11 @@ public static class ProjectBuilder
         VerifyAssetUse();
         Render();
     }
+
+    #endregion
+
+    #region Build and review tools
+
     public static void VerifyAssetUse()
     {
         var dependencies = new System.Collections.Generic.HashSet<string>(AssetDatabase.GetDependencies("Assets/Scenes/Main.unity", true));
@@ -465,4 +491,6 @@ public static class ProjectBuilder
         UnityEngine.Object.DestroyImmediate(image);
         UnityEngine.Object.DestroyImmediate(rt);
     }
+
+    #endregion
 }
