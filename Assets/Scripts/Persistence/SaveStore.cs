@@ -41,6 +41,7 @@ namespace SlotGame
                     return new SaveData();
                 if (data.version == 1)
                 {
+                    // Version 1 had no safe pending-round record, so keep settings and balance only.
                     data.version = 2;
                     data.volume = 1;
                     data.pendingRound = false;
@@ -66,6 +67,7 @@ namespace SlotGame
 
         private static bool ValidRound(SaveData data)
         {
+            // A pending outcome must contain one valid symbol index for each of the three reels.
             if (data.result == null || data.result.Length != 3 || data.roundStake <= 0 || data.pendingPayout < 0)
                 return false;
             foreach (int symbol in data.result)
@@ -78,6 +80,7 @@ namespace SlotGame
         {
             // One JSON record holds both the wallet and pending round, never separate keys.
             PlayerPrefs.SetString(Key, JsonUtility.ToJson(data));
+            // Flush immediately so a reload cannot refund a stake or award a collected win twice.
             PlayerPrefs.Save();
         }
     }

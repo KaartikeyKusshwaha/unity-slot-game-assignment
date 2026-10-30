@@ -23,7 +23,8 @@ namespace SlotGame
             outcomes = new OutcomeGenerator(random);
             Data = store.Load();
             wallet = new Wallet(Data.credits);
-            // Derive resumed payouts from the saved stake/outcome, never trust a stored amount.
+            // The result and stake are the saved round facts. Recompute the payout so a stale
+            // derived amount cannot change what the player receives after a reload.
             if (Data.pendingRound)
             {
                 if (Array.IndexOf(bets, Data.roundStake) < 0)
@@ -40,6 +41,8 @@ namespace SlotGame
         {
             if (Data.pendingRound || Data.credits < bets[Data.betIndex])
                 return false;
+
+            // Save the selected outcome with the deducted stake before the controller starts animation.
             int[] result = outcomes.Spin();
             int stake = bets[Data.betIndex];
             if (!wallet.Spend(stake))
@@ -63,7 +66,8 @@ namespace SlotGame
             Data.credits = wallet.Credits;
             Data.lastWin = reward;
             ClearRound();
-            Save(); // Commit before any visual collection, making reload safe.
+            // Award and clear the pending round in the same save before coin animation can start.
+            Save();
             return reward;
         }
 
@@ -95,7 +99,8 @@ namespace SlotGame
         {
             if (Data.pendingRound)
                 return;
-            // Wallet remains the single accounting implementation.
+
+            // Use the same wallet methods as normal play so credit changes have one implementation.
             if (wallet.Credits > 0)
                 wallet.Spend(wallet.Credits);
             wallet.Award(startingCredits);

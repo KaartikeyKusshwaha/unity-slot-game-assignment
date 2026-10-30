@@ -105,6 +105,8 @@ namespace SlotGame
             bet.text = "BET  " + config.bets[data.betIndex];
             lastWin.text = data.lastWin.ToString("N0");
             muteLabel.text = data.muted ? "SOUND OFF" : "SOUND ON";
+
+            // Keep input availability derived from the state and saved round, not individual click paths.
             bool ready = State == GameState.Ready && !data.pendingRound;
             leverButton.interactable = ready && data.credits >= config.bets[data.betIndex];
             betButton.interactable = ready;
@@ -147,6 +149,7 @@ namespace SlotGame
 
         public void Spin()
         {
+            // TryBegin charges and saves the result once. Further input is rejected while this round is pending.
             if (State != GameState.Ready || ModalOpen || !session.TryBegin())
                 return;
             SetState(GameState.Pulling);
@@ -164,6 +167,8 @@ namespace SlotGame
             effects.Rolling = true;
             audioPlayer.StartReels();
             stoppedReels = 0;
+
+            // The outcome was chosen before the spin; each coroutine only controls its reveal timing.
             for (int i = 0; i < reels.Length; i++)
                 StartCoroutine(AnimateReel(i, session.Data.result[i]));
             yield return new WaitUntil(() => stoppedReels == reels.Length);
@@ -206,6 +211,8 @@ namespace SlotGame
             if (State != GameState.AwaitingCollect)
                 return;
             SetState(GameState.Collecting);
+
+            // Persist the award before starting the coin animation so a repeated click cannot pay twice.
             int reward = session.Collect();
             if (reward <= 0)
                 return;
@@ -337,6 +344,7 @@ namespace SlotGame
         }
         private IEnumerator FadePanel(CanvasGroup panel, bool show, float seconds)
         {
+            // A newer request invalidates any older fade coroutine targeting this panel.
             int token = panelTransitions.TryGetValue(panel, out int previous) ? previous + 1 : 1;
             panelTransitions[panel] = token;
             bool wasActive = panel.gameObject.activeSelf;

@@ -72,6 +72,7 @@ namespace SlotGame
 
         public IEnumerator ShowReward(int amount)
         {
+            // This count-up is presentation only. RoundSession controls when credits are actually awarded.
             rewardOverlay.SetActive(true);
             celebrating = true;
             foreach (var particle in particles)
@@ -95,6 +96,7 @@ namespace SlotGame
 
         public IEnumerator Collect()
         {
+            // These pooled particles visualize the already-saved reward moving to the balance display.
             collecting = true;
             Vector3 target = particles[0].parent.InverseTransformPoint(balanceTarget.position);
             Vector2[] origins = new Vector2[particles.Length];

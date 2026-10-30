@@ -44,6 +44,7 @@ namespace SlotGame
         }
         private void Move(float value, float seconds)
         {
+            // Start from the current animated scale so interrupted hover and press transitions do not snap.
             origin = current;
             target = ReducedMotion ? 1 : value;
             elapsed = 0;

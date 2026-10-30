@@ -58,6 +58,8 @@ namespace SlotGame
             float elapsed = 0;
             int start = Current;
             int lastStep = 0;
+
+            // Add full turns while preserving the step remainder needed to land on the chosen symbol.
             int steps = MinimumSpinSteps + ((target - start + 4) % 4);
 
             while (elapsed < duration)

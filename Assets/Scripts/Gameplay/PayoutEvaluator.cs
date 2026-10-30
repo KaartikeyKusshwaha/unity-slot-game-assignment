@@ -1,6 +1,9 @@
 namespace SlotGame
 {
-    /// <summary>Calculates a payout when all three reels show the same symbol.</summary>
+    /// <summary>
+    /// Calculates the total credit award when all three reels match.
+    /// The stake is deducted separately when the round begins.
+    /// </summary>
     public static class PayoutEvaluator
     {
         public static int Evaluate(int[] result, int bet, int[] multipliers)

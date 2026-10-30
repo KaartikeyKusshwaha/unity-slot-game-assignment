@@ -29,6 +29,7 @@ namespace SlotGame
 
         public IEnumerator SetClose(bool close, bool reduced)
         {
+            // The cabinet scales around its centre, so offset by the reel focus to keep the live reels centred.
             Vector2 destination = close ? -reelFocus * closeScale : standingPosition;
             float scale = close ? closeScale : standingScale;
             if (reduced)
@@ -86,6 +87,7 @@ namespace SlotGame
         }
         private IEnumerator RotateLever(float angle, float seconds, bool easeIn)
         {
+            // The lever RectTransform pivot sits at the mounting base, which stays fixed during the pull.
             float from = lever.localEulerAngles.z;
             for (float time = 0; time < seconds; time += Time.unscaledDeltaTime)
             {

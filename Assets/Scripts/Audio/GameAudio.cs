@@ -54,12 +54,14 @@ namespace SlotGame
 
         private void Awake()
         {
+            // Give each reel its own tick source so one reel cannot interrupt another reel's clicks.
             tickSources = new AudioSource[3];
             for (int i = 0; i < 3; i++)
             {
                 tickSources[i] = gameObject.AddComponent<AudioSource>();
                 tickSources[i].playOnAwake = false;
             }
+            // Pool one-shots so clicks, stops and reward cues can overlap without allocating sources mid-game.
             pool = new AudioSource[4];
             pool[0] = source;
             for (int i = 1; i < pool.Length; i++)
