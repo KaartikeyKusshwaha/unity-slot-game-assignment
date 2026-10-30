@@ -284,7 +284,10 @@ public static class ProjectBuilder
             effects.lights[n] = Pic("Marquee bulb " + n, cabinet, -248 + (n % 17) * 31, n < 17 ? 303 : -307, 8, 8, gold, circle);
         effects.sideLights = new Image[2];
         for (int n = 0; n < 2; n++)
-            effects.sideLights[n] = Pic("Side sweep " + n, canvas.transform, n == 0 ? -540 : 540, 0, 160, 600, Color.clear, rounded);
+        {
+            effects.sideLights[n] = Pic("Side sweep " + n, canvas.transform, n == 0 ? -600 : 600, 0, 72, 470, Color.clear, rounded);
+            effects.sideLights[n].transform.SetSiblingIndex(1);
+        }
         var hud = Rect("Game HUD", canvas.transform, 0, 0, 1280, 800);
         game.hud = hud.gameObject;
         Pic("HUD background", hud, 0, 336, 1210, 104, new Color(.045f, .012f, .025f, .97f), rounded);

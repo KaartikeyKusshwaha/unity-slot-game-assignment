@@ -70,6 +70,8 @@ The supplied left/right arrows decrease/increase the bet, and supplied circular 
 
 Source folders separate Scripts, Prefabs, Animations, UI, Sounds, Scenes and Editor tooling. Animations are implemented as reusable coroutines; no external tweening plugin is required. Unity metadata, Packages and ProjectSettings are tracked; Library and other generated caches are ignored.
 
+See [maintaining the project](Docs/maintaining-project.md) for the main human-editable settings, source files and folders. C# uses the repository `.editorconfig`.
+
 ## Saves and interrupted rounds
 
 One local JSON record contains the deducted balance, selected symbols, stake and pending reward. Reloading cannot reroll a saved round or charge it again. Press PLAY after a reload to resume its result screen. An uncollected winning payout remains pending until COLLECT.

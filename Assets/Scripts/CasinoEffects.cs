@@ -43,8 +43,8 @@ namespace SlotGame
             }
             for (int i = 0; i < sideLights.Length; i++)
             {
-                float alpha = Rolling && !ReducedMotion ? .16f + .13f * Mathf.Sin(clock * 4 + i * 2) : 0;
-                sideLights[i].color = new Color(i % 2 == 0 ? 1 : .2f, .25f, i % 2 == 0 ? .35f : 1, alpha);
+                float alpha = Rolling && !ReducedMotion ? .08f + .06f * Mathf.Sin(clock * 4 + i * 2) : 0;
+                sideLights[i].color = new Color(1f, .68f, .28f, alpha);
             }
             if (celebrating && !collecting && !ReducedMotion)
                 for (int i = 0; i < particles.Length; i++)
