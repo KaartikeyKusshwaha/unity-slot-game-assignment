@@ -83,11 +83,11 @@ namespace SlotGame
             Data.roundStake = 0;
         }
 
-        public void ChangeBet()
+        public void ChangeBet(int direction = 1)
         {
             if (Data.pendingRound)
                 return;
-            Data.betIndex = (Data.betIndex + 1) % bets.Length;
+            Data.betIndex = (Data.betIndex + direction + bets.Length) % bets.Length;
             Save();
         }
 

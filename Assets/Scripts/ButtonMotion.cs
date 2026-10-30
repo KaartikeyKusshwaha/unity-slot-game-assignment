@@ -37,6 +37,11 @@ namespace SlotGame
             elapsed = 0;
             duration = Mathf.Max(.01f, seconds);
         }
+        public void RefreshAppearance()
+        {
+            if (appearance != null)
+                appearance.alpha = button.interactable ? 1 : .42f;
+        }
         private void Update()
         {
             if (!button.interactable && target != 1)

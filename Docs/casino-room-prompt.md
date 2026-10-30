@@ -1,0 +1,7 @@
+# Supplementary casino environment
+
+Generated using the built-in ImageGen tool, with slot-machine4.png as an art-direction reference only. No supplied source asset was altered. This image is the background behind the original playable cabinet, symbols and controls. The supplied bg_gradient.png remains a visible atmosphere layer.
+
+## Final prompt
+
+Use case: stylized-concept. Asset type: supplementary background painting for a 16:10 2D slot-machine videogame, NOT a UI mockup. Use the referenced supplied purple illustrated slot cabinet only to guide colour and stylized game-art compatibility; do not redraw it, do not include any foreground slot machine or any foreground controls. Scene: a beautiful richly illustrated casino lounge with warm golden marquee lights, purple velvet and burgundy draped curtains, softly glowing distant machines at far left and far right, softly reflective carpet/floor, luxurious stylized polished cartoon videogame art with dimensional lighting. Composition: wide landscape, straight-on eye-level perspective; large calm open unobstructed central floor and wall area for the existing playable cabinet which will be composited separately; keep bright distant details on the left/right outer edges and the top; lower middle remains clear for buttons and status. Dark violet, burgundy, warm gold, inviting jewel highlights, soft depth blur on distant detail. No text, no logos, no numbers, no UI panels, no frames, no central machine, no people, no watermark. High-quality game environment, not photography, not website design.

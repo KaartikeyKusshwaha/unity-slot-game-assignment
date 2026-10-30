@@ -43,12 +43,21 @@ public static class ProjectBuilder
         t.alignment = TextAnchor.MiddleCenter;
         t.color = color;
         t.raycastTarget = false;
+        if (size >= 38)
+        {
+            var shadow = t.gameObject.AddComponent<Shadow>();
+            shadow.effectColor = new Color(.12f, .045f, .015f, .9f);
+            shadow.effectDistance = new Vector2(0, -4);
+            var edge = t.gameObject.AddComponent<Outline>();
+            edge.effectColor = new Color(.2f, .075f, .015f, .7f);
+            edge.effectDistance = new Vector2(1, -1);
+        }
         return t;
     }
     static Button Button(string text, Transform p, float x, float y, float w, float h, UnityEngine.Events.UnityAction action, bool primary = false)
     {
-        var im = Pic(text, p, x, y, w, h, primary ? gold : new Color(.55f, .31f, .15f), rounded);
-        Pic("Button face", im.transform, 0, 0, w - 4, h - 4, primary ? new Color(.66f, .045f, .11f) : burgundy, rounded);
+        var im = Pic(text, p, x, y, w, h, Color.white, SlicedArt("slot_machine_Middle_box", new Rect(51, 39, 555, 199), "SuppliedButtonPanel", new Vector4(28, 30, 28, 30)));
+        im.type = Image.Type.Simple;
         im.raycastTarget = true;
         var b = im.gameObject.AddComponent<Button>();
         b.targetGraphic = im;
@@ -71,9 +80,8 @@ public static class ProjectBuilder
     }
     static void Card(Transform p, float w, float h)
     {
-        Pic("Gold border", p, 0, 0, w, h, gold, rounded);
-        Pic("Burgundy panel", p, 0, 0, w - 4, h - 4, burgundy, rounded);
-        Pic("Inner panel", p, 0, 0, w - 20, h - 20, ink, rounded);
+        var frame = Pic("Supplied popup frame", p, 0, 0, w, h, Color.white, SlicedArt("popup", new Rect(89, 72, 1551, 729), "SuppliedPopup", new Vector4(72, 72, 72, 72)));
+        frame.type = Image.Type.Sliced;
     }
     static Sprite Art(string name) => AssetDatabase.LoadAssetAtPath<Sprite>("Assets/UI/" + name + ".png");
     static AudioClip Clip(string name) => AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Sounds/" + name + ".wav");
@@ -123,6 +131,47 @@ public static class ProjectBuilder
         AssetDatabase.CreateAsset(sprite, path);
         return sprite;
     }
+    static Sprite SlicedArt(string source, Rect rect, string name, Vector4 border)
+    {
+        string path = "Assets/UI/" + name + ".asset";
+        var old = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+        if (old)
+            return old;
+        var texture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/UI/" + source + ".png");
+        var sprite = Sprite.Create(texture, rect, new Vector2(.5f, .5f), 100, 0, SpriteMeshType.FullRect, border);
+        AssetDatabase.CreateAsset(sprite, path);
+        return sprite;
+    }
+    static Button AtlasButton(string name, Transform parent, float x, float y, float size, string sheet, UnityEngine.Events.UnityAction action)
+    {
+        var image = Pic(name, parent, x, y, size, size, Color.white, Crop(sheet, new Rect(0, 768, 256, 256), sheet + "Normal"));
+        image.raycastTarget = true;
+        var button = image.gameObject.AddComponent<Button>();
+        button.targetGraphic = image;
+        button.transition = Selectable.Transition.SpriteSwap;
+        button.spriteState = new SpriteState { highlightedSprite = Crop(sheet, new Rect(0, 512, 256, 256), sheet + "Hover"), pressedSprite = Crop(sheet, new Rect(0, 256, 256, 256), sheet + "Pressed"), disabledSprite = Crop(sheet, new Rect(0, 0, 256, 256), sheet + "Disabled") };
+        UnityEventTools.AddPersistentListener(button.onClick, action);
+        var motion = button.gameObject.AddComponent<ButtonMotion>();
+        motion.config = presentation;
+        motion.audioPlayer = audio;
+        return button;
+    }
+    static Button ConfirmButton(bool yes, Transform parent, float x, float y, UnityEngine.Events.UnityAction action)
+    {
+        int left = yes ? 70 : 549;
+        string label = yes ? "Yes" : "No";
+        var image = Pic(label, parent, x, y, 260, 94, Color.white, Crop("Yes_No_Btn", new Rect(left, 465, 370, 142), label + "Normal"));
+        image.raycastTarget = true;
+        var button = image.gameObject.AddComponent<Button>();
+        button.targetGraphic = image;
+        button.transition = Selectable.Transition.SpriteSwap;
+        button.spriteState = new SpriteState { highlightedSprite = Crop("Yes_No_Btn", new Rect(left, 276, 370, 139), label + "Hover"), pressedSprite = Crop("Yes_No_Btn", new Rect(left, 84, 370, 141), label + "Pressed") };
+        UnityEventTools.AddPersistentListener(button.onClick, action);
+        var motion = button.gameObject.AddComponent<ButtonMotion>();
+        motion.config = presentation;
+        motion.audioPlayer = audio;
+        return button;
+    }
     public static void Create()
     {
         foreach (string path in Directory.GetFiles("Assets/UI", "*.png"))
@@ -167,6 +216,9 @@ public static class ProjectBuilder
         audio.loopSource = game.gameObject.AddComponent<AudioSource>();
         audio.loopSource.loop = true;
         audio.loopSource.playOnAwake = false;
+        audio.latch = Clip("latch");
+        audio.tick = Clip("tick");
+        audio.count = Clip("count");
         audio.click = Clip("click");
         audio.entry = Clip("entry");
         audio.lever = Clip("lever");
@@ -177,22 +229,16 @@ public static class ProjectBuilder
         audio.loopSource.clip = Clip("rumble");
         var face = Crop("slot-machine4", new Rect(137, 0, 550, 624), "CabinetFace");
         var scenery = Rect("Ambient scenery", canvas.transform, 0, 0, 1500, 1100);
-        Pic("Room", scenery, 0, 0, 1600, 1100, new Color(.08f, .012f, .035f));
-        Pic("Pattern", scenery, 0, 30, 1500, 1100, new Color(.36f, .1f, .22f, .24f), Art("bg_gradient"));
-        for (int side = -1; side <= 1; side += 2)
-        {
-            Pic("Distant cabinet", scenery, side * 535, -35, 330, 390, new Color(.25f, .12f, .22f, .45f), face);
-            for (int n = 0; n < 6; n++)
-                Pic("Velvet fold", scenery, side * (600 - n * 17), 45, 20, 1000, new Color(.12f + n * .008f, .012f, .035f, .85f));
-            Pic("Floor light", scenery, side * 400, -282, 330, 5, new Color(.8f, .32f, .08f, .3f));
-        }
-        Pic("Floor", canvas.transform, 0, -375, 1500, 120, new Color(.025f, .008f, .02f));
+        Pic("Illustrated casino room", scenery, 0, 0, 1400, 880, Color.white, Art("CasinoRoom"));
+        Pic("Supplied atmosphere gradient", scenery, 0, 30, 1400, 1000, new Color(.5f, .4f, .8f, .12f), Art("bg_gradient"));
+        Pic("Floor", canvas.transform, 0, -375, 1500, 120, new Color(.025f, .008f, .02f, .38f));
         Pic("Shadow", canvas.transform, 0, -304, 600, 26, new Color(0, 0, 0, .6f), rounded);
         var cabinet = Rect("Cabinet assembly", canvas.transform, 0, -20, 550, 624);
-        cabinet.localScale = Vector3.one * .88f;
+        cabinet.localScale = Vector3.one * .95f;
         Pic("Cabinet body", cabinet, 0, 0, 550, 624, Color.white, face);
-        Pic("Nameplate", cabinet, 0, -280, 450, 43, burgundy, rounded);
+        Pic("Nameplate", cabinet, 0, -280, 450, 43, Color.white, SlicedArt("slot_machine_Middle_box", new Rect(51, 39, 555, 199), "SuppliedButtonPanel", new Vector4(28, 30, 28, 30))).type = Image.Type.Sliced;
         Label("THE LUCKY LINE", cabinet, 0, -280, 430, 38, 24, gold);
+        Pic("Supplied reel glass", cabinet, 1, -39, 368, 210, Color.white, Crop("slot-machine5", new Rect(229, 168, 368, 210), "SuppliedReelGlass"));
         game.reels = new ReelView[3];
         for (int n = 0; n < 3; n++)
         {
@@ -231,6 +277,7 @@ public static class ProjectBuilder
         var effects = game.gameObject.AddComponent<CasinoEffects>();
         game.effects = effects;
         effects.config = presentation;
+        effects.audioPlayer = audio;
         effects.ambientLayer = scenery;
         effects.lights = new Image[34];
         for (int n = 0; n < 34; n++)
@@ -248,6 +295,8 @@ public static class ProjectBuilder
         effects.balanceTarget = game.credits.rectTransform;
         game.betButton = Button("BET  10", hud, -75, 337, 215, 58, game.ChangeBet);
         game.bet = game.betButton.GetComponentInChildren<Text>();
+        game.previousBetButton = AtlasButton("Decrease bet", hud, -222, 337, 48, "slot_machine_buttons-04", game.PreviousBet);
+        game.nextBetButton = AtlasButton("Increase bet", hud, 73, 337, 48, "slot_machine_buttons-03", game.ChangeBet);
         Label("LAST WIN", hud, 230, 363, 180, 27, 17, gold);
         game.lastWin = Label("0", hud, 230, 325, 180, 48, 32, Color.white);
         game.resetButton = Button("RESET", hud, 488, 337, 176, 58, game.AskReset);
@@ -257,15 +306,19 @@ public static class ProjectBuilder
         game.menuButton = Button("MENU", hud, 180, -375, 220, 42, game.MainMenu);
         var menu = Overlay("Main menu", canvas.transform);
         game.menuGroup = menu;
-        menu.GetComponent<Image>().color = new Color(.025f, .008f, .02f, .86f);
-        Pic("Title rule", menu.transform, 0, 232, 600, 2, gold);
-        Label("THE LUCKY LINE", menu.transform, 0, 156, 1100, 90, 66, gold);
-        Label("THREE REELS. ONE PERFECT MATCH.", menu.transform, 0, 83, 1000, 40, 23, Color.white);
-        Button("PLAY", menu.transform, 0, -15, 350, 80, game.Play, true);
-        Button("SETTINGS", menu.transform, 0, -116, 350, 62, game.ShowSettings);
-        Button("EXIT", menu.transform, 0, -200, 350, 62, game.Exit);
-        Label("Pull the lever. Match three. Collect your reward.", menu.transform, 0, -288, 1050, 36, 22, new Color(.86f, .77f, .65f));
-        Label("SIMULATED CREDITS  /  NO REAL MONEY", menu.transform, 0, -345, 1000, 28, 16, new Color(.75f, .65f, .53f));
+        menu.GetComponent<Image>().color = new Color(.035f, .015f, .11f, .25f);
+        Pic("Menu cabinet hero", menu.transform, 300, -5, 440, 500, Color.white, Crop("slot-machine1", new Rect(137, 0, 615, 624), "SuppliedMenuCabinet")).preserveAspect = true;
+        for (int i = 0; i < 3; i++)
+            Pic("Menu reel symbol " + i, menu.transform, 185 + i * 92, -32, 64, 80, Color.white, config.symbols[i]).preserveAspect = true;
+        Pic("Menu coin treasure", menu.transform, 455, -230, 160, 130, Color.white, Art("CasinoCoins")).preserveAspect = true;
+        Label("THE LUCKY", menu.transform, -280, 200, 620, 80, 60, gold);
+        Label("LINE", menu.transform, -280, 115, 620, 120, 76, gold);
+        Button("PLAY", menu.transform, -280, 0, 370, 95, game.Play, true);
+        Button("SETTINGS", menu.transform, -280, -102, 300, 64, game.ShowSettings);
+        Button("EXIT", menu.transform, -280, -181, 300, 64, game.Exit);
+        for (int i = 0; i < 4; i++)
+            Pic("Menu symbol jewel " + i, menu.transform, -415 + i * 90, -280, 64, 64, Color.white, config.symbols[i]).preserveAspect = true;
+        Label("THREE REELS. ONE PERFECT MATCH.", menu.transform, 0, -355, 1000, 32, 21, Color.white);
         var reward = Overlay("Reward presentation", canvas.transform);
         reward.GetComponent<Image>().color = new Color(.025f, .008f, .02f, .7f);
         effects.rewardOverlay = reward.gameObject;
@@ -276,7 +329,7 @@ public static class ProjectBuilder
         var card = Rect("Reward card", reward.transform, 0, 0, 690, 450);
         effects.rewardCard = card;
         Card(card, 690, 450);
-        card.Find("Inner panel").GetComponent<Image>().color = new Color(.36f, .012f, .055f);
+
         Label("BINGO!", card, 0, 155, 630, 76, 58, gold);
         game.rewardLabel = Label("Congratulations - you won", card, 0, 92, 640, 42, 25, Color.white);
         effects.rewardAmount = Label("+250", card, 0, 5, 620, 110, 86, gold);
@@ -294,14 +347,15 @@ public static class ProjectBuilder
         }
         Label("Only the centre line pays. Payout is the total credits awarded.\nEach symbol has an equal 1 in 4 chance per reel.", help.transform, 0, -160, 780, 70, 19, Color.white);
         Button("BACK", help.transform, 0, -253, 300, 56, game.CloseHelp);
+        AtlasButton("Close payouts", help.transform, 365, 270, 54, "slot_machine_buttons-02", game.CloseHelp);
         help.gameObject.SetActive(false);
         var reset = Overlay("Reset confirmation", canvas.transform);
         game.resetPanel = reset.gameObject;
         Card(reset.transform, 790, 350);
         Label("START FRESH?", reset.transform, 0, 100, 710, 60, 38, gold);
         Label("Replace your balance with 1,000 credits.", reset.transform, 0, 18, 720, 50, 24, Color.white);
-        Button("RESET", reset.transform, -175, -88, 260, 60, game.ConfirmReset, true);
-        Button("CANCEL", reset.transform, 175, -88, 260, 60, game.CancelReset);
+        ConfirmButton(true, reset.transform, -175, -88, game.ConfirmReset);
+        ConfirmButton(false, reset.transform, 175, -88, game.CancelReset);
         reset.gameObject.SetActive(false);
         var exit = Overlay("Session finished", canvas.transform);
         game.exitPanel = exit.gameObject;
@@ -331,6 +385,7 @@ public static class ProjectBuilder
         game.motionButton = Button("REDUCED MOTION: OFF", settings.transform, 0, -53, 590, 60, game.ToggleMotion);
         game.motionLabel = game.motionButton.GetComponentInChildren<Text>();
         Button("BACK", settings.transform, 0, -169, 320, 62, game.CloseSettings);
+        AtlasButton("Close settings", settings.transform, 365, 205, 54, "slot_machine_buttons-02", game.CloseSettings);
         settings.gameObject.SetActive(false);
         var mute = Button("SOUND ON", canvas.transform, 485, 262, 200, 40, game.ToggleMute);
         game.muteLabel = mute.GetComponentInChildren<Text>();
@@ -339,7 +394,10 @@ public static class ProjectBuilder
         game.view = view;
         view.cabinet = cabinet;
         view.lever = pivot;
+        view.pressedLeverTip = Pic("Supplied lowered lever cap", cabinet, 303, -152, 57, 38, Color.white, Crop("slot-machine3", new Rect(673, 0, 92, 60), "SuppliedLoweredLever"));
+        view.pressedLeverTip.gameObject.SetActive(false);
         view.config = presentation;
+        view.audioPlayer = audio;
         view.transitionFade = Pic("Transition fade", canvas.transform, 0, 0, 1280, 800, Color.clear);
         hud.gameObject.SetActive(false);
         PlayerSettings.companyName = "KaartikeyKusshwaha";
@@ -351,7 +409,17 @@ public static class ProjectBuilder
         EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene("Assets/Scenes/Main.unity", true) };
         AssetDatabase.SaveAssets();
         VerifyLogic();
+        VerifyAssetUse();
         Render();
+    }
+    public static void VerifyAssetUse()
+    {
+        var dependencies = new System.Collections.Generic.HashSet<string>(AssetDatabase.GetDependencies("Assets/Scenes/Main.unity", true));
+        string[] supplied = { "bg_gradient", "popup", "slot-machine1", "slot-machine2", "slot-machine3", "slot-machine4", "slot-machine5", "slot-symbol1", "slot-symbol2", "slot-symbol3", "slot-symbol4", "slot_machine_buttons-02", "slot_machine_buttons-03", "slot_machine_buttons-04", "slot_machine_Middle_box", "Yes_No_Btn" };
+        foreach (string name in supplied)
+            if (!dependencies.Contains("Assets/UI/" + name + ".png"))
+                throw new Exception("Supplied asset missing from scene dependencies: " + name);
+        Debug.Log("ASSET USE PASS: all 16 supplied PNGs are real scene dependencies.");
     }
     public static void CreateAndVerify()
     {
@@ -365,6 +433,7 @@ public static class ProjectBuilder
     public static void BuildWeb()
     {
         VerifyLogic();
+        VerifyAssetUse();
         var r = BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, "Build/WebGL", BuildTarget.WebGL, BuildOptions.None);
         if (r.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
             throw new Exception("Web build failed");

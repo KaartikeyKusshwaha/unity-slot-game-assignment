@@ -16,6 +16,7 @@ namespace SlotGame
         public PresentationConfig presentation;
         public ReelView[] reels;
         public Text credits, bet, lastWin, status, muteLabel, rewardLabel;
+        public Button previousBetButton, nextBetButton;
         public Button leverButton, betButton, resetButton, helpButton, menuButton, collectButton, motionButton;
         public GameObject helpPanel, resetPanel, settingsPanel, exitPanel, hud;
         public CanvasGroup menuGroup;
@@ -38,6 +39,7 @@ namespace SlotGame
             for (int index = 0; index < reels.Length; index++)
                 reels[index].Show(index, config.symbols);
             hud.SetActive(false);
+            view.cabinet.gameObject.SetActive(false);
             menuGroup.gameObject.SetActive(true);
             menuGroup.alpha = 1;
             effects.HideReward();
@@ -68,8 +70,11 @@ namespace SlotGame
             bool ready = State == GameState.Ready && !data.pendingRound;
             leverButton.interactable = ready && data.credits >= config.bets[data.betIndex];
             betButton.interactable = resetButton.interactable = helpButton.interactable = menuButton.interactable = ready;
+            previousBetButton.interactable = nextBetButton.interactable = ready;
             collectButton.interactable = State == GameState.AwaitingCollect;
             motionButton.interactable = State == GameState.Menu || ready;
+            foreach (var motion in FindObjectsByType<ButtonMotion>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                motion.RefreshAppearance();
             if (ready)
                 status.text = leverButton.interactable ? "PULL THE LEVER  /  PRESS SPACE" : "Choose a smaller bet or reset your credits.";
         }
@@ -85,6 +90,7 @@ namespace SlotGame
         }
         private IEnumerator Enter()
         {
+            view.cabinet.gameObject.SetActive(true);
             hud.SetActive(true);
             yield return FadePanel(menuGroup, false, presentation.entrySeconds);
             if (session.Data.pendingRound)
@@ -127,7 +133,7 @@ namespace SlotGame
         private IEnumerator AnimateReel(int index, int symbol)
         {
             float duration = presentation.firstStopSeconds + index * presentation.stopGapSeconds;
-            yield return reels[index].Spin(symbol, config.symbols, duration - .18f);
+            yield return reels[index].Spin(symbol, config.symbols, duration - .18f, () => audioPlayer.ReelTick(index));
             audioPlayer.Reveal(index);
             yield return reels[index].Settle(config.symbols, session.Data.reducedMotion);
             stoppedReels++;
@@ -142,7 +148,7 @@ namespace SlotGame
                 foreach (var reel in reels)
                     reel.glow.color = new Color(1, .75f, .2f, .25f);
                 audioPlayer.Play(audioPlayer.win, .8f);
-                rewardLabel.text = "Congratulations — you won";
+                rewardLabel.text = "Congratulations - you won";
                 yield return effects.ShowReward(payout);
                 SetState(GameState.AwaitingCollect);
             }
@@ -183,6 +189,13 @@ namespace SlotGame
             if (State != GameState.Ready || ModalOpen)
                 return;
             session.ChangeBet();
+            Refresh();
+        }
+        public void PreviousBet()
+        {
+            if (State != GameState.Ready || ModalOpen)
+                return;
+            session.ChangeBet(-1);
             Refresh();
         }
         public void ShowHelp()
@@ -260,6 +273,7 @@ namespace SlotGame
                 return;
             SetState(GameState.Menu);
             hud.SetActive(false);
+            view.cabinet.gameObject.SetActive(false);
             StartCoroutine(FadePanel(menuGroup, true, .4f));
         }
         public void Exit()

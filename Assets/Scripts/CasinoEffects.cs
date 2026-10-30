@@ -8,6 +8,7 @@ namespace SlotGame
     public class CasinoEffects : MonoBehaviour
     {
         public PresentationConfig config;
+        public GameAudio audioPlayer;
         public GameObject rewardOverlay;
         public RectTransform rewardCard;
         public CanvasGroup rewardGroup;
@@ -66,6 +67,7 @@ namespace SlotGame
                 rewardGroup.alpha = Ease.Out(arrival);
                 rewardCard.localScale = Vector3.one * (ReducedMotion ? 1 : Mathf.LerpUnclamped(.75f, 1, Ease.BackOut(arrival)));
                 rewardCard.anchoredPosition = new Vector2(0, ReducedMotion ? 0 : Mathf.Lerp(25, 0, Ease.Out(arrival)));
+                audioPlayer.CountTick(Mathf.Clamp01(time / config.countSeconds));
                 rewardAmount.text = "+" + Mathf.RoundToInt(amount * Ease.Out(Mathf.Clamp01(time / config.countSeconds))).ToString("N0");
                 yield return null;
             }
@@ -91,6 +93,8 @@ namespace SlotGame
             for (float time = 0; time < config.collectSeconds; time += Time.unscaledDeltaTime)
             {
                 float progress = Mathf.Clamp01(time / config.collectSeconds);
+                if (!ReducedMotion)
+                    balanceTarget.localScale = Vector3.one * (1 + .07f * Mathf.Sin(progress * Mathf.PI * 3));
                 for (int i = 0; i < particles.Length; i++)
                 {
                     float t = Mathf.Clamp01((progress - i * .008f) / .72f);
@@ -102,6 +106,7 @@ namespace SlotGame
                 rewardGroup.alpha = 1 - Ease.In(Mathf.Clamp01((progress - .55f) / .45f));
                 yield return null;
             }
+            balanceTarget.localScale = Vector3.one;
             HideReward();
         }
 

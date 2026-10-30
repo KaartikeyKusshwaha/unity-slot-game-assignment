@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,7 +32,7 @@ namespace SlotGame
             for (float time = 0; time < .18f; time += Time.deltaTime)
             {
                 Show(symbol, sprites);
-                float offset = reduced ? 0 : Mathf.Sin(time / .18f * Mathf.PI) * -9;
+                float offset = reduced ? 0 : Mathf.Sin(time / .18f * Mathf.PI * 1.6f) * Mathf.Exp(-time * 9) * -15;
                 foreach (var cell in cells)
                     cell.rectTransform.anchoredPosition += Vector2.up * offset;
                 glow.color = new Color(1, .8f, .3f, (1 - time / .18f) * .3f);
@@ -41,11 +42,12 @@ namespace SlotGame
             glow.color = Color.clear;
         }
 
-        public IEnumerator Spin(int target, Sprite[] sprites, float duration)
+        public IEnumerator Spin(int target, Sprite[] sprites, float duration, Action onStep = null)
         {
             glow.color = Color.clear;
             float elapsed = 0;
             int start = Current;
+            int lastStep = 0;
             int steps = 24 + ((target - start + 4) % 4);
 
             while (elapsed < duration)
@@ -55,6 +57,11 @@ namespace SlotGame
                 // Smoothstep gives zero velocity at both ends of the spin.
                 float travel = steps * progress * progress * (3 - 2 * progress);
                 int wholeSteps = Mathf.FloorToInt(travel);
+                if (wholeSteps > lastStep)
+                {
+                    onStep?.Invoke();
+                    lastStep = wholeSteps;
+                }
                 float fraction = travel - wholeSteps;
                 Show((start + wholeSteps) % 4, sprites);
                 foreach (var cell in cells)
