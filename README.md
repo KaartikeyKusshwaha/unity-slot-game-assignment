@@ -2,6 +2,8 @@
 
 Unity slot-machine internship assignment, using Unity 6000.6.7f1.
 
+![The Lucky Line running in Edge](Docs/gameplay-edge.png)
+
 ## Gameplay
 Three reels, four equally likely symbols, one central winning line. Three identical centre symbols win. Start with 1,000 credits; cycle between bets of 10, 25 and 50. Seven pays 5 times the bet, cherries 10, bell 20, and BAR 25. Payout means the total amount credited after the stake has been deducted.
 
@@ -33,5 +35,5 @@ Verification images and the report are written into the ignored Artifacts folder
 ## Assumptions
 The provided archive contains artwork and a reference GIF but no separate design document. Three reels, the bet values, starting balance and payout multipliers are project decisions documented above. Each exact result has probability 1/64. The four winning multipliers total 60, giving a theoretical 93.75% credit return over many spins. This does not guarantee a return during any individual session.
 
-## Delivery status
-In progress: scene and gameplay tests pass. The first WebGL build succeeded and is served locally at http://127.0.0.1:8080. Initial Edge browser smoke tests passed. The current-source WebGL build and responsive Edge checks passed. Final review and repository publishing remain outstanding.
+## Delivery
+The repository includes the complete editable Unity project and the browser build in `Build/WebGL`. Generated Unity caches are excluded. See the verification section for tested behavior and the recorded limits of testing. Visual adjustments can be made in `Assets/Scenes/Main.unity` or regenerated through `ProjectBuilder.Create`.
