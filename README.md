@@ -49,6 +49,7 @@ Install Unity **6000.6.7f1** with **Web Build Support**, add this folder through
 The Unity Editor command-line executable supports these entrypoints:
 
 - `ProjectBuilder.BuildWeb`: checks core logic and exports `Build/WebGL`, including responsive page styling.
+- `ProjectBuilder.BuildWebPlayer`: exports the WebGL player without running the logic checks, while still checking supplied scene assets.
 - `ProjectBuilder.VerifyLogic`: runs exhaustive outcome and persistent-round checks.
 - `RuntimeVerification.Run`: enters Play Mode, tests the complete flow and captures review images; it exits with success or failure. Do **not** pass `-quit` for this entrypoint.
 - `ProjectBuilder.Create`: regenerates the editable scene, prefabs and default configuration. This deliberately replaces manual changes to the generated scene/configuration.

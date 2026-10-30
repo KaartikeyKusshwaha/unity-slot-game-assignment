@@ -6,7 +6,8 @@ namespace SlotGame
 {
     public class CabinetView : MonoBehaviour
     {
-        private const float LeverPullAngle = 55f;
+        private const float LeverPullAngle = -135f;
+        private const float LeverHoldSeconds = .07f;
         private const float PunchDuration = .1f;
         private const float PunchStrength = .018f;
 
@@ -63,6 +64,7 @@ namespace SlotGame
             yield return RotateLever(LeverPullAngle, config.pullSeconds, true);
             audioPlayer.Play(audioPlayer.latch, .6f);
             pressedLeverTip.gameObject.SetActive(true);
+            yield return new WaitForSecondsRealtime(LeverHoldSeconds);
             yield return RotateLever(0, config.leverReturnSeconds, false);
             pressedLeverTip.gameObject.SetActive(false);
         }

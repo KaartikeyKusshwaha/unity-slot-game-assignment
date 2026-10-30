@@ -462,6 +462,11 @@ public static class ProjectBuilder
     public static void BuildWeb()
     {
         VerifyLogic();
+        BuildWebPlayer();
+    }
+
+    public static void BuildWebPlayer()
+    {
         VerifyAssetUse();
         var r = BuildPipeline.BuildPlayer(EditorBuildSettings.scenes, "Build/WebGL", BuildTarget.WebGL, BuildOptions.None);
         if (r.summary.result != UnityEditor.Build.Reporting.BuildResult.Succeeded)
