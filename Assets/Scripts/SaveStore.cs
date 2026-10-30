@@ -1,9 +1,47 @@
-using System; using UnityEngine;
-namespace SlotGame {
- [Serializable] public class SaveData { public int version=1; public int credits=1000; public int betIndex; public bool muted; }
- public sealed class SaveStore {
- const string Key="slot.assignment.save.v1";
- public SaveData Load(){try{var raw=PlayerPrefs.GetString(Key,"");if(string.IsNullOrEmpty(raw))return new SaveData();var d=JsonUtility.FromJson<SaveData>(raw);if(d==null||d.version!=1||d.credits<0||d.credits>100000000||d.betIndex<0||d.betIndex>2) return new SaveData();return d;}catch{return new SaveData();}}
- public void Save(SaveData data){PlayerPrefs.SetString(Key,JsonUtility.ToJson(data));PlayerPrefs.Save();}
- }
+using System;
+using UnityEngine;
+
+namespace SlotGame
+{
+    [Serializable]
+    public class SaveData
+    {
+        public int version = 1;
+        public int credits = 1000;
+        public int betIndex;
+        public bool muted;
+    }
+
+    public sealed class SaveStore
+    {
+        private const string Key = "slot.assignment.save.v1";
+
+        public SaveData Load()
+        {
+            try
+            {
+                string raw = PlayerPrefs.GetString(Key, "");
+                if (string.IsNullOrEmpty(raw))
+                    return new SaveData();
+
+                var data = JsonUtility.FromJson<SaveData>(raw);
+                // Treat invalid or incompatible storage as a new local session.
+                if (data == null || data.version != 1 || data.credits < 0 ||
+                    data.credits > 100000000 || data.betIndex < 0 || data.betIndex > 2)
+                    return new SaveData();
+
+                return data;
+            }
+            catch
+            {
+                return new SaveData();
+            }
+        }
+
+        public void Save(SaveData data)
+        {
+            PlayerPrefs.SetString(Key, JsonUtility.ToJson(data));
+            PlayerPrefs.Save();
+        }
+    }
 }
