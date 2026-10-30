@@ -1,0 +1,6 @@
+
+body { background: #100c25; color: #f9dfab; overflow: hidden; }
+#unity-container { width: max-content; }
+#unity-footer { height: 38px; background: #100c25; }
+#unity-build-title { font-size: 14px; }
+#unity-fullscreen-container:fullscreen { width: 100vw !important; height: 100vh !important; }
