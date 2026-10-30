@@ -11,12 +11,17 @@ namespace SlotGame
         private const float PunchDuration = .1f;
         private const float PunchStrength = .018f;
 
+        [Header("Cabinet framing")]
         public RectTransform cabinet;
+        public Image transitionFade;
+
+        [Header("Lever")]
         public RectTransform lever;
         public Image pressedLeverTip;
-        public Image transitionFade;
         public PresentationConfig config;
         public GameAudio audioPlayer;
+
+        [Header("Camera framing")]
         public Vector2 standingPosition = new Vector2(0, -20);
         public float standingScale = .95f;
         public Vector2 reelFocus = new Vector2(0, -38);

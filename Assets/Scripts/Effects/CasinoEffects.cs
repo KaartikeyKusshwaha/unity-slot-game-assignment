@@ -7,14 +7,21 @@ namespace SlotGame
     /// <summary>Reusable visual effects pool; no accounting or outcome generation.</summary>
     public class CasinoEffects : MonoBehaviour
     {
+        [Header("Animation and audio")]
         public PresentationConfig config;
         public GameAudio audioPlayer;
+
+        [Header("Reward panel")]
         public GameObject rewardOverlay;
         public RectTransform rewardCard;
         public CanvasGroup rewardGroup;
         public Text rewardAmount;
+
+        [Header("Cabinet lights")]
         public Image[] lights;
         public Image[] sideLights;
+
+        [Header("Coins and ambient motion")]
         public RectTransform[] particles;
         public RectTransform balanceTarget;
         public RectTransform ambientLayer;

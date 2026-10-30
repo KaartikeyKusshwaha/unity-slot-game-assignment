@@ -7,6 +7,7 @@ namespace SlotGame
 {
     public class ReelView : MonoBehaviour
     {
+        [Header("Reel symbols and highlight")]
         public Image[] cells;
         public Image glow;
         public int Current

@@ -11,7 +11,10 @@ namespace SlotGame
         private const float DisabledAlpha = .42f;
         private const float MinimumTransitionDuration = .01f;
 
+        [Header("Button animation")]
         public PresentationConfig config;
+
+        [Header("Button sound")]
         public GameAudio audioPlayer;
         public bool ReducedMotion
         {

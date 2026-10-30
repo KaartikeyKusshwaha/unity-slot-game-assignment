@@ -6,17 +6,24 @@ namespace SlotGame
     /// <summary>Bounded effects pool plus a dedicated, fading reel loop. No speech clips.</summary>
     public class GameAudio : MonoBehaviour
     {
+        [Header("Audio sources")]
         public AudioSource source;
         public AudioSource loopSource;
+
+        [Header("Menu and lever sounds")]
         public AudioClip click;
         public AudioClip entry;
         public AudioClip lever;
+        public AudioClip latch;
+
+        [Header("Reel sounds")]
         public AudioClip spin;
         public AudioClip stop;
+        public AudioClip tick;
+
+        [Header("Reward sounds")]
         public AudioClip win;
         public AudioClip collect;
-        public AudioClip latch;
-        public AudioClip tick;
         public AudioClip count;
         public int ReelTickCount
         {

@@ -69,7 +69,7 @@ Example PowerShell build command, replacing the project path as needed:
 
 The supplied left/right arrows decrease/increase the bet, and supplied circular X controls close panels.
 
-Source folders separate Scripts, Prefabs, Animations, UI, Sounds, Scenes and Editor tooling. Animations are implemented as reusable coroutines; no external tweening plugin is required. Unity metadata, Packages and ProjectSettings are tracked; Library and other generated caches are ignored.
+Runtime scripts are grouped by responsibility under `Assets/Scripts/Audio`, `Configuration`, `Effects`, `Gameplay`, `Persistence` and `Presentation`. `Assets/Editor` contains scene/build tools and verification utilities; `Assets/Prefabs`, `Animations`, `UI`, `Sounds` and `Scenes` hold reusable game content. Reel and interface transitions use coroutines; no external tweening plugin is required. Unity metadata, Packages and ProjectSettings are tracked; Library and other generated caches are ignored.
 
 See [maintaining the project](Docs/maintaining-project.md) for the main human-editable settings, source files and folders. C# uses the repository `.editorconfig`.
 

@@ -5,16 +5,25 @@ namespace SlotGame
     [CreateAssetMenu(menuName = "Slot Game/Presentation")]
     public class PresentationConfig : ScriptableObject
     {
+        [Header("Menu and cabinet transitions")]
         public float entrySeconds = .3f;
         public float zoomSeconds = .7f;
+
+        [Header("Lever animation")]
         public float pullSeconds = .22f;
         public float leverReturnSeconds = .35f;
+
+        [Header("Reel timing")]
         public float firstStopSeconds = 2.2f;
         public float stopGapSeconds = .45f;
+
+        [Header("Reward sequence")]
         public float lossPauseSeconds = 1.2f;
         public float cardSeconds = .35f;
         public float countSeconds = .9f;
         public float collectSeconds = .8f;
+
+        [Header("Button transitions")]
         public float hoverSeconds = .12f;
         public float pressSeconds = .06f;
         public float releaseSeconds = .14f;

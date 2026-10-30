@@ -21,8 +21,11 @@ namespace SlotGame
 
     public class SlotController : MonoBehaviour
     {
+        [Header("Game configuration")]
         public SlotConfig config;
         public PresentationConfig presentation;
+
+        [Header("Reels and game status")]
         public ReelView[] reels;
         public Text credits;
         public Text bet;
@@ -30,6 +33,8 @@ namespace SlotGame
         public Text status;
         public Text muteLabel;
         public Text rewardLabel;
+
+        [Header("Game controls")]
         public Button previousBetButton;
         public Button nextBetButton;
         public Button leverButton;
@@ -39,6 +44,8 @@ namespace SlotGame
         public Button menuButton;
         public Button collectButton;
         public Button motionButton;
+
+        [Header("Panels and HUD")]
         public GameObject helpPanel;
         public GameObject resetPanel;
         public GameObject settingsPanel;
@@ -47,6 +54,8 @@ namespace SlotGame
         public CanvasGroup menuGroup;
         public Slider volumeSlider;
         public Text motionLabel;
+
+        [Header("Presentation components")]
         public GameAudio audioPlayer;
         public CasinoEffects effects;
         public CabinetView view;
@@ -105,7 +114,7 @@ namespace SlotGame
             previousBetButton.interactable = nextBetButton.interactable = ready;
             collectButton.interactable = State == GameState.AwaitingCollect;
             motionButton.interactable = State == GameState.Menu || ready;
-            foreach (var motion in FindObjectsByType<ButtonMotion>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            foreach (var motion in FindObjectsByType<ButtonMotion>(FindObjectsInactive.Include))
                 motion.RefreshAppearance();
             if (ready)
                 status.text = leverButton.interactable ? "PULL THE LEVER  /  PRESS SPACE" : "Choose a smaller bet or reset your credits.";
@@ -295,7 +304,7 @@ namespace SlotGame
             volumeSlider.SetValueWithoutNotify(session.Data.volume);
             motionLabel.text = session.Data.reducedMotion ? "REDUCED MOTION: ON" : "REDUCED MOTION: OFF";
             effects.ReducedMotion = session.Data.reducedMotion;
-            foreach (var motion in FindObjectsByType<ButtonMotion>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            foreach (var motion in FindObjectsByType<ButtonMotion>(FindObjectsInactive.Include))
                 motion.ReducedMotion = session.Data.reducedMotion;
             settingsUpdating = false;
         }
