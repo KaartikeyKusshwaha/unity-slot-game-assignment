@@ -17,5 +17,21 @@ Outcome generation, payout evaluation and wallet arithmetic are independent of p
 ## Assets and extras
 Artwork comes from the supplied Slot Machine assignment archive. Audio tones are generated for this project. Polish includes staggered stops, win highlights, sound/mute, payout help, saved credits and confirmed reset. No paid plugins are used.
 
+## Running the browser build
+Serve the repository's Build/WebGL directory with a local HTTP server. For example, from the repository root, run `python -m http.server 8080 --directory Build/WebGL`, then visit http://localhost:8080. Opening index.html directly as a local file is unsupported. Audio requires browser interaction.
+
+## Command-line builds
+Run the installed Unity Editor executable with `-batchmode -quit -projectPath` followed by this project's absolute path, then `-executeMethod ProjectBuilder.BuildWeb -buildTarget WebGL -logFile build.log`. The build method fails if Unity reports an unsuccessful build. Web output is uncompressed for straightforward local serving.
+
+## Verification
+`ProjectBuilder.VerifyLogic` checks every one of the 64 possible outcomes, requiring exactly four wins and the configured payout for each, plus stake deduction and wallet accounting.
+
+`RuntimeVerification.Run` enters Play Mode and checks repeated-click protection, bet locking, saved stakes, exact settlement, reel landing, mute persistence, reset/cancel, saved bets, corrupt-save recovery and insufficient credits. Run it in batch mode with `-executeMethod RuntimeVerification.Run`, without `-quit`; it exits with a success or failure code. It preserves the existing local save and restores it after the run. The test uses a deterministic random source only inside the Editor test; production spins use the normal random source.
+
+Verification images and the report are written into the ignored Artifacts folder. These tests passed in Unity 6000.6.7f1. Browser verification remains outstanding.
+
+## Assumptions
+The provided archive contains artwork and a reference GIF but no separate design document. Three reels, the bet values, starting balance and payout multipliers are project decisions documented above. Each exact result has probability 1/64. The four winning multipliers total 60, giving a theoretical 93.75% credit return over many spins. This does not guarantee a return during any individual session.
+
 ## Delivery status
-In progress: scene and core logic compile; initial exhaustive outcome tests pass. Visual review, expanded tests, browser verification and final WebGL delivery remain outstanding.
+In progress: scene and gameplay tests pass. The first WebGL build is running. Visual review, browser verification, final source cleanup and publishing remain outstanding.
