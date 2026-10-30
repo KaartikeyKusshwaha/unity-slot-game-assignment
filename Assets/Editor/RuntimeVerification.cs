@@ -76,6 +76,10 @@ public static class RuntimeVerification
                 Assert(game.Session.Data.credits == 990 && game.Session.Data.pendingPayout == 250, "Pending reward remains uncredited");
                 foreach (var reel in game.reels)
                     Assert(reel.Current == 3, "Exact reel landing");
+                Assert(game.audioPlayer.RevealCount == 3, "Exactly three reveal accents");
+                Assert(game.audioPlayer.ReelTickCount > 10, "Travel-synchronized reel ticks");
+                Assert(game.audioPlayer.CountTickCount >= 5, "Payout count-up ticks");
+                Assert(!game.audioPlayer.ReelLoopPlaying, "Motor loop stops before collect");
                 ProjectBuilder.Capture("collect-reward");
                 game.CollectReward();
                 game.CollectReward();
@@ -113,7 +117,7 @@ public static class RuntimeVerification
             }
             else if (stage == 8 && game.State == GameState.Menu)
             {
-                Finish(0, "RUNTIME PASS: menu/play, attached lever, input locks, zoom, exact reel landing, pending payout, collect once, return transform, loss auto-return, reduced motion, saved volume/mute, reset and menu.");
+                Finish(0, "RUNTIME PASS: menu/play, attached lever, input locks, zoom, exact reel landing, pending payout, collect once, return transform, loss auto-return, reduced motion, saved volume/mute, reset/menu, three reveal accents, synchronized ticks, count-up SFX and motor cleanup.");
             }
         }
         catch (Exception error) { Finish(1, error.ToString()); }

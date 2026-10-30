@@ -1,44 +1,91 @@
 # The Lucky Line
 
-Unity slot-machine internship assignment, using Unity 6000.6.7f1.
+A playable Unity slot-machine internship assignment with a classic red-and-gold 2.5D casino presentation. Built with **Unity 6000.6.7f1**. The complete editable project and WebGL build are included.
 
-![The Lucky Line running in Edge](Docs/gameplay-edge.png)
+![Standing in front of the cabinet](Docs/standing-view.png)
 
-## Animation preview
-Recorded from the actual WebGL game running in Edge.
+## Play the included WebGL build
 
-![Reel animation in Edge](Docs/spin-preview.gif)
+Clone the repository. From its root, serve the build over HTTP:
 
-## Gameplay
-Three reels, four equally likely symbols, one central winning line. Three identical centre symbols win. Start with 1,000 credits; cycle between bets of 10, 25 and 50. Seven pays 5 times the bet, cherries 10, bell 20, and BAR 25. Payout means the total amount credited after the stake has been deducted.
+```sh
+python -m http.server 8080 --directory Build/WebGL
+```
 
-## Controls
-SPIN starts a round. BET cycles stakes. PAYOUTS explains the rules. SOUND toggles audio. RESET CREDITS asks for confirmation before replacing the balance with 1,000. Controls prevent overlapping spins or bet changes during a round.
+Open http://localhost:8080 in a desktop browser. Do not open index.html directly as a local file. Web output is uncompressed so a simple HTTP server works without custom compression headers. Browser audio begins after an interaction.
 
-## Development
-Open Assets/Scenes/Main.unity in Unity 6000.6.7f1. Web Build Support is required for browser export. ProjectBuilder.Create generates the editable scene and reusable prefabs; ProjectBuilder.VerifyLogic checks all 64 outcomes and basic wallet accounting; ProjectBuilder.BuildWeb exports to Build/WebGL. Invoke these static methods with Unity Editor's batch-mode executeMethod argument.
+## Controls and flow
 
-## Design
-Outcome generation, payout evaluation and wallet arithmetic are independent of presentation. Reels reveal results chosen before animation. Configuration holds symbols, stakes, multipliers and timing. Credits are saved after stake deduction and settlement. Reloading during an unfinished spin forfeits that stake; it cannot refund or replay the round. Invalid saves fall back to defaults. Browser storage is local to its origin.
+- **PLAY** enters the standing view. The attached red lever or **Space** starts a spin. There is no separate SPIN button.
+- The camera presentation zooms into the live reels. Symbols stop left to right, each with its own settling animation and musical pop.
+- Three identical central symbols show **BINGO** and a payout count-up. **COLLECT REWARD** transfers the win to the balance, animates coins, then returns to the cabinet.
+- A non-matching result displays **NO MATCH** and returns automatically after a short pause.
+- The top bar contains a casino-chip credit icon, the current balance, selected bet, last win and **RESET**. Reset asks for confirmation and is unavailable during an unresolved round.
+- **PAYOUTS** explains the rules. **MENU** returns to the title between rounds.
+- **AUDIO/SETTINGS** offers master volume and reduced motion. **SOUND ON/OFF** mutes every effect. There are no spoken voice cues.
+- **EXIT** in WebGL shows a finished-session panel with a return-to-menu option; it does not close the browser.
 
-## Assets and extras
-Artwork comes from the supplied Slot Machine assignment archive. Audio tones are generated for this project. Polish includes staggered stops, win highlights, sound/mute, payout help, saved credits and confirmed reset. No paid plugins are used.
+![Title screen](Docs/menu.png)
 
-## Running the browser build
-Serve the repository's Build/WebGL directory with a local HTTP server. For example, from the repository root, run `python -m http.server 8080 --directory Build/WebGL`, then visit http://localhost:8080. Opening index.html directly as a local file is unsupported. Audio requires browser interaction.
+## Rules and payouts
 
-## Command-line builds
-Run the installed Unity Editor executable with `-batchmode -quit -projectPath` followed by this project's absolute path, then `-executeMethod ProjectBuilder.BuildWeb -buildTarget WebGL -logFile build.log`. The build method fails if Unity reports an unsuccessful build. Web output is uncompressed for straightforward local serving.
+Start with **1,000 simulated credits**. Bets are **10, 25, and 50**, defaulting to 10. Three reels use the four supplied symbols with equal, independent probability. Only three identical centre symbols win.
 
-## Verification
-`ProjectBuilder.VerifyLogic` checks every one of the 64 possible outcomes, requiring exactly four wins and the configured payout for each, plus stake deduction and wallet accounting.
+| Symbol | Total payout |
+|---|---:|
+| Seven (`slot-symbol1`) | 5 x bet |
+| Cherries (`slot-symbol2`) | 10 x bet |
+| Bell (`slot-symbol3`) | 20 x bet |
+| BAR (`slot-symbol4`) | 25 x bet |
 
-`RuntimeVerification.Run` enters Play Mode and checks repeated-click protection, bet locking, saved stakes, exact settlement, reel landing, mute persistence, reset/cancel, saved bets, corrupt-save recovery and insufficient credits. Run it in batch mode with `-executeMethod RuntimeVerification.Run`, without `-quit`; it exits with a success or failure code. It preserves the existing local save and restores it after the run. The test uses a deterministic random source only inside the Editor test; production spins use the normal random source.
+The bet is deducted once when the lever pull is accepted. Payout means the total credits awarded on collection. Each exact outcome has probability 1/64; four outcomes win. The mathematical long-run credit return is 60/64, or 93.75%, without any guarantee for an individual session. This is a simulation with no real-money transactions.
 
-Verification images and the report are written into the ignored Artifacts folder. These tests passed in Unity 6000.6.7f1. Initial Edge browser smoke tests passed: loading, losing spin accounting, saved balance/bet/mute, payout help, reset cancel/confirm, and reload during a spin. No console errors were observed; Unity reports a storage-sync deprecation warning. The current-source WebGL build succeeded. Edge resizing passed at 960x600 and 1280x800 with all controls visible and no page overflow. The generated page maintains a 16:10 canvas and opts into automatic persistent-storage synchronization.
+![Zoomed reward screen](Docs/collect-reward.png)
 
-## Assumptions
-The provided archive contains artwork and a reference GIF but no separate design document. Three reels, the bet values, starting balance and payout multipliers are project decisions documented above. Each exact result has probability 1/64. The four winning multipliers total 60, giving a theoretical 93.75% credit return over many spins. This does not guarantee a return during any individual session.
+## Open and rebuild in Unity
 
-## Delivery
-The repository includes the complete editable Unity project and the browser build in `Build/WebGL`. Generated Unity caches are excluded. See the verification section for tested behavior and the recorded limits of testing. Visual adjustments can be made in `Assets/Scenes/Main.unity` or regenerated through `ProjectBuilder.Create`.
+Install Unity **6000.6.7f1** with **Web Build Support**, add this folder through Unity Hub, open `Assets/Scenes/Main.unity`, and press Play.
+
+The Unity Editor command-line executable supports these entrypoints:
+
+- `ProjectBuilder.BuildWeb`: checks core logic and exports `Build/WebGL`, including responsive page styling.
+- `ProjectBuilder.VerifyLogic`: runs exhaustive outcome and persistent-round checks.
+- `RuntimeVerification.Run`: enters Play Mode, tests the complete flow and captures review images; it exits with success or failure. Do **not** pass `-quit` for this entrypoint.
+- `ProjectBuilder.Create`: regenerates the editable scene, prefabs and default configuration. This deliberately replaces manual changes to the generated scene/configuration.
+- `ProjectBuilder.CreateAndVerify`: regenerates, then runs Play Mode verification.
+
+Example PowerShell build command, replacing the project path as needed:
+
+```powershell
+& 'C:\Program Files\Unity\Hub\Editor\6000.6.7f1\Editor\Unity.exe' -batchmode -quit -projectPath 'C:\path\to\unity-slot-game-assignment' -executeMethod ProjectBuilder.BuildWeb -buildTarget WebGL -logFile build.log
+```
+
+## Approach and code structure
+
+`RoundSession` owns accounting and pending-round persistence. `OutcomeGenerator` and `PayoutEvaluator` are independent of UI and accept a deterministic random source in tests. `SlotController` coordinates explicit menu/entry/pull/zoom/spin/result/collect/return states. `CabinetView`, `CasinoEffects`, `ButtonMotion` and `GameAudio` handle presentation separately.
+
+`GameConfig` contains symbols, stakes and multipliers. `Presentation` exposes timing for zoom, lever pull, staggered stops, count-up and collection. Transitions use shared cubic ease-in/out/in-out functions, with back-ease-out for the reward card. The actual cabinet, lever, reels and lights share a hierarchy, so zoom retains their physical connection.
+
+The supplied left/right arrows decrease/increase the bet, and supplied circular X controls close panels.
+
+Source folders separate Scripts, Prefabs, Animations, UI, Sounds, Scenes and Editor tooling. Animations are implemented as reusable coroutines; no external tweening plugin is required. Unity metadata, Packages and ProjectSettings are tracked; Library and other generated caches are ignored.
+
+## Saves and interrupted rounds
+
+One local JSON record contains the deducted balance, selected symbols, stake and pending reward. Reloading cannot reroll a saved round or charge it again. Press PLAY after a reload to resume its result screen. An uncollected winning payout remains pending until COLLECT.
+
+Collection saves the increased balance and clears the pending round **before** the coin animation starts, so repeated input or a reload cannot award it twice. Existing version-1 saves migrate while preserving valid balance, bet and mute settings. Invalid saves fall back to defaults; malformed pending records are discarded while preserving a valid balance. Saves are local to the browser and origin; clearing site storage removes them.
+
+## Presentation extras
+
+Centered cabinet and attached animated lever; eased menu/button/zoom transitions; subtle parallax; animated marquee bulbs; sequential symbol pops and highlights; side colour sweeps; red BINGO card; confetti; payout count-up; explicit collect-and-coin animation; confirmed reset; volume/mute and reduced motion. Reduced motion uses short fades instead of zoom/bounce and disables confetti. Effects cannot change outcomes or payouts.
+
+## Assets and attribution
+
+Machine artwork, symbol textures, background and source controls are from the supplied **Slot Machine** assignment archive: https://drive.google.com/file/d/1LA8Ma42PWi1sz8xlvIsbpHQfNSLwSamF/view . The archive includes artwork and a reference GIF, but no separate design document. The three-reel rules, bets, starting credits and payout values are explicit project assumptions.
+
+Every one of the 16 supplied PNGs is referenced by the scene, including the original glossy button panel, popup frame, arrow/close interaction states, YES/NO sheet, reel backing and lever parts. The 85-frame GIF is used as a motion reference. See [provided asset map](Docs/provided-asset-use.md). All 17 original files remain byte-for-byte unchanged. The supplementary casino-token HUD icon was generated with the built-in ImageGen tool using the user-provided coin-stack image as a style reference; see [asset prompt](Docs/casino-coins-prompt.md). The cabinet, lever, menu hero and sprite-sheet controls reference cropped regions of the supplied artwork. The casino-room illustration is an additional background behind those original assets; see [background generation prompt](Docs/casino-room-prompt.md). Coin rattles, mechanical cues and musical stingers are mixed from Kenney Casino Audio, Interface Sounds and Music Jingles (CC0). Source licenses and selected originals are included under `Assets/Sounds/Kenney`; `Tools/build_audio.py` rebuilds the WAVs. See [sound-design references and implementation](Docs/audio-design.md). No speech, paid assets or paid plugins are used. Source artwork remains subject to its original owner's terms; no new ownership claim is made.
+
+## Validation
+
+See [verification results](Docs/verification.md) for automated checks, Edge tests and limitations. Runtime captures and scratch logs are generated in the ignored `Artifacts` directory. Preview images above are captured from the actual Unity scene.

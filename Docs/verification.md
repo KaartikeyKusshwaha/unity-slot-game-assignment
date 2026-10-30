@@ -1,15 +1,11 @@
 # Submission verification
 
-Verified using Unity 6000.6.7f1 and Microsoft Edge on Windows.
+Verified on 30 October 2026 using Unity 6000.6.7f1 and Microsoft Edge on Windows.
 
-- Current-source WebGL build: Unity reported Build Finished, Result: Success.
-- All 64 outcomes: exactly four winning combinations, each matching its configured multiplier.
-- Unity Play Mode: repeated-click protection, bet lock, saved stake, exact BAR win settlement, reel landing, mute persistence, reset/cancel, saved bet, corrupt-save fallback and insufficient funds passed.
-- Edge: game loaded over HTTP; losing spin deducted 10 from 1,000; balance/bet/mute survived reload; payout help and reset/cancel worked; reload during a 25-credit spin preserved the deducted balance of 965; confirmed reset restored 1,000.
-- Edge responsive presentation: 960x600 and 1280x800 fitted the canvas and controls without page overflow.
-- Fresh local Git clone: required Unity assets and WebGL files present, source assets have metadata, Unity import and all 64 payout checks passed without using the original project cache.
-- Largest build file is approximately 26 MB, below GitHub's normal file limit.
+- `ProjectBuilder.VerifyLogic` checks all 64 exact outcomes: exactly four win and each uses its configured payout. It also checks stakes, duplicate input, interrupted rounds, save migration, corrupt-save recovery and insufficient credits.
+- `RuntimeVerification.Run` passed in Play Mode. It covers menu/play, guarded lever input, locked controls, zoom, exact reel landing, pending payout, single collection, automatic loss return, reduced motion, saved volume/mute, reset/menu, three reveal accents, travel-synchronised reel ticks, payout count-up ticks and motor cleanup.
+- Edge loaded the WebGL build over HTTP. The current smoke test entered the cabinet, accepted a 25-credit lever pull, showed the zoomed reel presentation, resolved a non-match and returned to the standing view with the balance at 825.
+- The project verifies that all 16 supplied PNGs are direct dependencies of the main scene and that all 17 original provided files remain byte-for-byte unchanged.
+- A fresh local Git clone has previously imported the Unity project and run the 64-outcome verification without using the original project cache. The largest WebGL file is below GitHub's normal 100 MB limit.
 
-The initial browser build reported a Unity storage-sync deprecation warning; the current generated page opts into automatic synchronization. No console errors were observed during the initial browser smoke test. Audio mute behavior was tested; actual loudspeaker audibility was not verified. Visual feedback remains open for iteration.
-
-Reel motion uses coroutines in ReelView rather than AnimationClip assets. The Animations directory is retained for project organization.
+The bundled effects are validated as runtime events; speaker loudness and subjective mixing still depend on the browser and local device. Reel motion uses coroutines in `ReelView` rather than AnimationClip assets. The `Animations` directory is retained for the assignment's required project organization.

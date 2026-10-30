@@ -8,6 +8,19 @@ namespace SlotGame
     {
         public AudioSource source, loopSource;
         public AudioClip click, entry, lever, spin, stop, win, collect, latch, tick, count;
+        public int ReelTickCount
+        {
+            get; private set;
+        }
+        public int RevealCount
+        {
+            get; private set;
+        }
+        public int CountTickCount
+        {
+            get; private set;
+        }
+        public bool ReelLoopPlaying => loopSource.isPlaying;
         private AudioSource[] tickSources;
         private readonly float[] lastTick = { -1, -1, -1 };
         private int remainingReels;
@@ -65,6 +78,7 @@ namespace SlotGame
         }
         public void Reveal(int index)
         {
+            RevealCount++;
             remainingReels = 2 - index;
             tickSources[index].Stop();
             Play(stop, .85f, 1 + index * .12f);
@@ -73,6 +87,7 @@ namespace SlotGame
         {
             if (tick == null || Time.unscaledTime - lastTick[index] < .045f)
                 return;
+            ReelTickCount++;
             lastTick[index] = Time.unscaledTime;
             var voice = tickSources[index];
             voice.clip = tick;
@@ -85,6 +100,7 @@ namespace SlotGame
         {
             if (Time.unscaledTime < nextCount)
                 return;
+            CountTickCount++;
             nextCount = Time.unscaledTime + .09f;
             Play(count, .22f, 1 + progress * .35f);
         }
@@ -100,6 +116,7 @@ namespace SlotGame
         {
             if (loopFade != null)
                 StopCoroutine(loopFade);
+            ReelTickCount = RevealCount = CountTickCount = 0;
             remainingReels = 3;
             rolling = true;
             motorStart = Time.unscaledTime;
