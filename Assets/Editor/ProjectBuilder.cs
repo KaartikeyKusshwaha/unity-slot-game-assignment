@@ -23,6 +23,7 @@ public static class ProjectBuilder {
  for(int i=0;i<3;i++){var panel=Pic("Reel "+(i+1),canvas.transform,-306+i*130,-40,108,174,null,new Color(.88f,.94f,.97f));panel.gameObject.AddComponent<RectMask2D>();var reel=panel.gameObject.AddComponent<ReelView>();reel.cells=new Image[5];for(int j=0;j<5;j++){reel.cells[j]=Pic("Symbol "+j,panel.transform,0,(2-j)*125,94,106,config.symbols[(i+j)%4],Color.white);reel.cells[j].preserveAspect=true;}
  reel.glow=Pic("Win glow",panel.transform,0,0,108,174,null,Color.clear);game.reels[i]=reel;reel.Show(i,config.symbols);if(i==0){PrefabUtility.SaveAsPrefabAsset(reel.cells[2].gameObject,"Assets/Prefabs/Symbol.prefab");PrefabUtility.SaveAsPrefabAsset(panel.gameObject,"Assets/Prefabs/Reel.prefab");}}
  Label("\u25b6",canvas.transform,-382,-40,30,35,22,gold);Label("\u25c0",canvas.transform,30,-40,30,35,22,gold);
+ var cabinet=Rect("Cabinet assembly",canvas.transform,-60,10,1280,800); foreach(var child in new[]{GameObject.Find("Machine").transform,game.reels[0].transform,game.reels[1].transform,game.reels[2].transform,GameObject.Find("\u25b6").transform,GameObject.Find("\u25c0").transform})child.SetParent(cabinet,false);cabinet.localScale=Vector3.one*.8f;
  var info=Pic("Score card",canvas.transform,370,45,320,390,Art("popup"),Color.white);
  Label("YOUR CREDITS",info.transform,0,145,280,25,14,gold);game.credits=Label("1,000",info.transform,0,102,280,60,48,Color.white);
  Label("LAST WIN",info.transform,0,29,280,25,14,gold);game.lastWin=Label("0",info.transform,0,-12,280,52,36,Color.white);
@@ -37,7 +38,7 @@ public static class ProjectBuilder {
  var audio=game.gameObject.AddComponent<GameAudio>();audio.source=game.gameObject.AddComponent<AudioSource>();audio.source.playOnAwake=false;audio.spin=AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Sounds/spin.wav");audio.stop=AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Sounds/stop.wav");audio.win=AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Sounds/win.wav");game.audioPlayer=audio;
  PlayerSettings.companyName="KaartikeyKusshwaha";PlayerSettings.productName="The Lucky Line";PlayerSettings.defaultScreenWidth=1280;PlayerSettings.defaultScreenHeight=800;PlayerSettings.WebGL.compressionFormat=WebGLCompressionFormat.Disabled;
  EditorSceneManager.SaveScene(scene,"Assets/Scenes/Main.unity");EditorBuildSettings.scenes=new[]{new EditorBuildSettingsScene("Assets/Scenes/Main.unity",true)};AssetDatabase.SaveAssets();
- VerifyLogic();
+ VerifyLogic();Render();
  }
  public static void VerifyLogic(){int wins=0;var payouts=new[]{5,10,20,25};for(int a=0;a<4;a++)for(int b=0;b<4;b++)for(int c=0;c<4;c++){int value=PayoutEvaluator.Evaluate(new[]{a,b,c},10,payouts);if(value>0)wins++;if(value!=(a==b&&b==c?10*payouts[a]:0))throw new Exception("Payout mismatch");}if(wins!=4)throw new Exception("Win count");var wallet=new Wallet(1000);if(!wallet.Spend(10)||wallet.Credits!=990||wallet.Spend(1000))throw new Exception("Wallet");wallet.Award(50);if(wallet.Credits!=1040)throw new Exception("Award");Debug.Log("LOGIC TESTS PASSED: 64 outcomes, 4 wins, wallet accounting");}
  public static void BuildWeb(){VerifyLogic();var r=BuildPipeline.BuildPlayer(EditorBuildSettings.scenes,"Build/WebGL",BuildTarget.WebGL,BuildOptions.None);if(r.summary.result!=UnityEditor.Build.Reporting.BuildResult.Succeeded)throw new Exception("Web build failed");}
