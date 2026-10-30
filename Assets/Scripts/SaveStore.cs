@@ -34,7 +34,8 @@ namespace SlotGame
             try
             {
                 string raw = PlayerPrefs.GetString(Key, "");
-                if (string.IsNullOrEmpty(raw)) return new SaveData();
+                if (string.IsNullOrEmpty(raw))
+                    return new SaveData();
                 var data = JsonUtility.FromJson<SaveData>(raw);
                 if (data == null || data.credits < 0 || data.betIndex < 0 || data.betIndex > 2)
                     return new SaveData();
@@ -45,7 +46,8 @@ namespace SlotGame
                     data.pendingRound = false;
                     Save(data);
                 }
-                if (data.version != 2) return new SaveData();
+                if (data.version != 2)
+                    return new SaveData();
                 data.volume = float.IsNaN(data.volume) ? 1 : Mathf.Clamp01(data.volume);
                 if (data.pendingRound && !ValidRound(data))
                 {
@@ -67,7 +69,8 @@ namespace SlotGame
             if (data.result == null || data.result.Length != 3 || data.roundStake <= 0 || data.pendingPayout < 0)
                 return false;
             foreach (int symbol in data.result)
-                if (symbol < 0 || symbol >= 4) return false;
+                if (symbol < 0 || symbol >= 4)
+                    return false;
             return true;
         }
 

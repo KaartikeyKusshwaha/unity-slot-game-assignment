@@ -38,7 +38,10 @@ namespace SlotGame
 
     public sealed class Wallet
     {
-        public int Credits { get; private set; }
+        public int Credits
+        {
+            get; private set;
+        }
 
         public Wallet(int credits)
         {

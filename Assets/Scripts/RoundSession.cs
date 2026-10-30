@@ -5,7 +5,10 @@ namespace SlotGame
     /// <summary>Owns accounting and pending-round persistence, independent of animation.</summary>
     public sealed class RoundSession
     {
-        public SaveData Data { get; }
+        public SaveData Data
+        {
+            get;
+        }
         private readonly IGameSaveStore store;
         private readonly OutcomeGenerator outcomes;
         private readonly int[] bets;
@@ -28,16 +31,19 @@ namespace SlotGame
                     ClearRound();
                     Save();
                 }
-                else Data.pendingPayout = PayoutEvaluator.Evaluate(Data.result, Data.roundStake, payouts);
+                else
+                    Data.pendingPayout = PayoutEvaluator.Evaluate(Data.result, Data.roundStake, payouts);
             }
         }
 
         public bool TryBegin()
         {
-            if (Data.pendingRound || Data.credits < bets[Data.betIndex]) return false;
+            if (Data.pendingRound || Data.credits < bets[Data.betIndex])
+                return false;
             int[] result = outcomes.Spin();
             int stake = bets[Data.betIndex];
-            if (!wallet.Spend(stake)) return false;
+            if (!wallet.Spend(stake))
+                return false;
             Data.credits = wallet.Credits;
             Data.result = result;
             Data.roundStake = stake;
@@ -50,7 +56,8 @@ namespace SlotGame
 
         public int Collect()
         {
-            if (!Data.pendingRound || Data.pendingPayout <= 0) return 0;
+            if (!Data.pendingRound || Data.pendingPayout <= 0)
+                return 0;
             int reward = Data.pendingPayout;
             wallet.Award(reward);
             Data.credits = wallet.Credits;
@@ -62,7 +69,8 @@ namespace SlotGame
 
         public void FinishLoss()
         {
-            if (!Data.pendingRound || Data.pendingPayout != 0) return;
+            if (!Data.pendingRound || Data.pendingPayout != 0)
+                return;
             ClearRound();
             Save();
         }
@@ -77,16 +85,19 @@ namespace SlotGame
 
         public void ChangeBet()
         {
-            if (Data.pendingRound) return;
+            if (Data.pendingRound)
+                return;
             Data.betIndex = (Data.betIndex + 1) % bets.Length;
             Save();
         }
 
         public void Reset(int startingCredits)
         {
-            if (Data.pendingRound) return;
+            if (Data.pendingRound)
+                return;
             // Wallet remains the single accounting implementation.
-            if (wallet.Credits > 0) wallet.Spend(wallet.Credits);
+            if (wallet.Credits > 0)
+                wallet.Spend(wallet.Credits);
             wallet.Award(startingCredits);
             Data.credits = wallet.Credits;
             Data.lastWin = 0;

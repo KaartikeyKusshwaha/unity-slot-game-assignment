@@ -8,7 +8,10 @@ namespace SlotGame
     {
         public Image[] cells;
         public Image glow;
-        public int Current { get; private set; }
+        public int Current
+        {
+            get; private set;
+        }
         private const float SymbolSpacing = 125f;
 
         public void Show(int symbol, Sprite[] sprites)
@@ -24,16 +27,18 @@ namespace SlotGame
 
         public IEnumerator Settle(Sprite[] sprites, bool reduced)
         {
-            int symbol=Current;
-            for(float time=0;time<.18f;time+=Time.deltaTime)
+            int symbol = Current;
+            for (float time = 0; time < .18f; time += Time.deltaTime)
             {
-                Show(symbol,sprites);
-                float offset=reduced?0:Mathf.Sin(time/.18f*Mathf.PI)*-9;
-                foreach(var cell in cells)cell.rectTransform.anchoredPosition+=Vector2.up*offset;
-                glow.color=new Color(1,.8f,.3f,(1-time/.18f)*.3f);
+                Show(symbol, sprites);
+                float offset = reduced ? 0 : Mathf.Sin(time / .18f * Mathf.PI) * -9;
+                foreach (var cell in cells)
+                    cell.rectTransform.anchoredPosition += Vector2.up * offset;
+                glow.color = new Color(1, .8f, .3f, (1 - time / .18f) * .3f);
                 yield return null;
             }
-            Show(symbol,sprites);glow.color=Color.clear;
+            Show(symbol, sprites);
+            glow.color = Color.clear;
         }
 
         public IEnumerator Spin(int target, Sprite[] sprites, float duration)
