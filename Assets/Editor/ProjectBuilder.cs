@@ -1,0 +1,45 @@
+using System; using System.IO; using UnityEngine; using UnityEngine.UI; using UnityEngine.EventSystems; using UnityEditor; using UnityEditor.SceneManagement; using UnityEditor.Events; using SlotGame;
+public static class ProjectBuilder {
+ static Font font; static Color gold=new Color(1,.78f,.39f); static Color ink=new Color(.08f,.06f,.18f);
+ static RectTransform Rect(string name,Transform parent,float x,float y,float w,float h){var go=new GameObject(name,typeof(RectTransform));go.transform.SetParent(parent,false);var r=go.GetComponent<RectTransform>();r.sizeDelta=new Vector2(w,h);r.anchoredPosition=new Vector2(x,y);return r;}
+ static Image Pic(string name,Transform p,float x,float y,float w,float h,Sprite sprite,Color color){var im=Rect(name,p,x,y,w,h).gameObject.AddComponent<Image>();im.sprite=sprite;im.color=color;im.raycastTarget=false;return im;}
+ static Text Label(string value,Transform p,float x,float y,float w,float h,int size,Color color){var t=Rect(value,p,x,y,w,h).gameObject.AddComponent<Text>();t.text=value;t.font=font;t.fontSize=size;t.color=color;t.alignment=TextAnchor.MiddleCenter;t.raycastTarget=false;return t;}
+ static Button Button(string value,Transform p,float x,float y,float w,float h,UnityEngine.Events.UnityAction action,Sprite sprite=null){var im=Pic(value,p,x,y,w,h,sprite,sprite?Color.white:new Color(.25f,.19f,.43f));im.raycastTarget=true;var b=im.gameObject.AddComponent<Button>();b.targetGraphic=im;UnityEventTools.AddPersistentListener(b.onClick,action);Label(value,im.transform,0,0,w-12,h,18,gold);return b;}
+ static Sprite Art(string name)=>AssetDatabase.LoadAssetAtPath<Sprite>("Assets/UI/"+name+".png");
+ public static void Create(){
+ foreach(string path in Directory.GetFiles("Assets/UI","*.png")){var imp=(TextureImporter)AssetImporter.GetAtPath(path);imp.textureType=TextureImporterType.Sprite;imp.spriteImportMode=SpriteImportMode.Single;imp.alphaIsTransparency=true;imp.mipmapEnabled=false;imp.SaveAndReimport();}
+ font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
+ var camera=new GameObject("Camera",typeof(Camera),typeof(AudioListener)).GetComponent<Camera>();camera.orthographic=true;camera.backgroundColor=ink;camera.clearFlags=CameraClearFlags.SolidColor;camera.transform.position=new Vector3(0,0,-10);camera.tag="MainCamera";
+ var canvas=new GameObject("Game Canvas",typeof(Canvas),typeof(CanvasScaler),typeof(GraphicRaycaster)).GetComponent<Canvas>();canvas.renderMode=RenderMode.ScreenSpaceCamera;canvas.worldCamera=camera;canvas.planeDistance=10;var scaler=canvas.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(1280,800);scaler.matchWidthOrHeight=.5f;
+ new GameObject("Event System",typeof(EventSystem),typeof(StandaloneInputModule));
+ var config=ScriptableObject.CreateInstance<SlotConfig>();config.symbols=new[]{Art("slot-symbol1"),Art("slot-symbol2"),Art("slot-symbol3"),Art("slot-symbol4")};AssetDatabase.CreateAsset(config,"Assets/Resources/GameConfig.asset");
+ var game=new GameObject("Slot Game").AddComponent<SlotController>();game.config=config;
+ Pic("Backdrop",canvas.transform,0,0,1800,1200,Art("bg_gradient"),Color.white);
+ Label("THE LUCKY LINE",canvas.transform,0,341,800,50,34,gold);Label("THREE REELS  /  ONE PERFECT MATCH",canvas.transform,0,300,800,28,14,new Color(.7f,.66f,.85f));
+ Pic("Machine",canvas.transform,-180,0,816,624,Art("slot-machine4"),Color.white).preserveAspect=true;
+ // A clean inset gives the original machine artwork a consistent, readable play surface.
+ 
+ game.reels=new ReelView[3];
+ for(int i=0;i<3;i++){var panel=Pic("Reel "+(i+1),canvas.transform,-306+i*130,-40,108,174,null,new Color(.88f,.94f,.97f));panel.gameObject.AddComponent<RectMask2D>();var reel=panel.gameObject.AddComponent<ReelView>();reel.cells=new Image[5];for(int j=0;j<5;j++){reel.cells[j]=Pic("Symbol "+j,panel.transform,0,(2-j)*125,94,106,config.symbols[(i+j)%4],Color.white);reel.cells[j].preserveAspect=true;}
+ reel.glow=Pic("Win glow",panel.transform,0,0,108,174,null,Color.clear);game.reels[i]=reel;reel.Show(i,config.symbols);if(i==0){PrefabUtility.SaveAsPrefabAsset(reel.cells[2].gameObject,"Assets/Prefabs/Symbol.prefab");PrefabUtility.SaveAsPrefabAsset(panel.gameObject,"Assets/Prefabs/Reel.prefab");}}
+ Label("\u25b6",canvas.transform,-382,-40,30,35,22,gold);Label("\u25c0",canvas.transform,30,-40,30,35,22,gold);
+ var info=Pic("Score card",canvas.transform,370,45,320,390,Art("popup"),Color.white);
+ Label("YOUR CREDITS",info.transform,0,145,280,25,14,gold);game.credits=Label("1,000",info.transform,0,102,280,60,48,Color.white);
+ Label("LAST WIN",info.transform,0,29,280,25,14,gold);game.lastWin=Label("0",info.transform,0,-12,280,52,36,Color.white);
+ game.betButton=Button("BET  10",info.transform,0,-89,240,52,game.ChangeBet);game.bet=game.betButton.GetComponentInChildren<Text>();
+ game.spinButton=Button("SPIN",info.transform,0,-157,240,65,game.Spin,Art("slot_machine_Middle_box"));
+ game.status=Label("Ready when you are.",canvas.transform,0,-286,1050,35,20,Color.white);
+ game.helpButton=Button("PAYOUTS",canvas.transform,-270,-346,170,44,game.ShowHelp);var mute=Button("SOUND ON",canvas.transform,0,-346,170,44,game.ToggleMute);game.muteLabel=mute.GetComponentInChildren<Text>();game.resetButton=Button("RESET CREDITS",canvas.transform,270,-346,190,44,game.AskReset);
+ var help=Pic("Payout overlay",canvas.transform,0,0,1280,800,null,new Color(0,0,0,.88f));help.raycastTarget=true;game.helpPanel=help.gameObject;Label("THE PAYOUTS",help.transform,0,220,700,60,32,gold);
+ for(int i=0;i<4;i++){Pic("Payout symbol",help.transform,-210,125-i*68,48,52,config.symbols[i],Color.white).preserveAspect=true;Label("3 MATCHING     "+config.payouts[i]+" x BET",help.transform,55,125-i*68,420,50,22,Color.white);}
+ Label("Only the centre line pays. Payout is total credits awarded.\nEach symbol has an equal 1 in 4 chance on each reel.",help.transform,0,-180,850,60,17,Color.white);Button("BACK TO GAME",help.transform,0,-266,240,52,game.CloseHelp);help.gameObject.SetActive(false);
+ var reset=Pic("Reset overlay",canvas.transform,0,0,1280,800,null,new Color(0,0,0,.9f));reset.raycastTarget=true;game.resetPanel=reset.gameObject;Label("START FRESH?",reset.transform,0,85,700,60,34,gold);Label("Replace your current balance with 1,000 credits.",reset.transform,0,10,800,50,22,Color.white);Button("RESET",reset.transform,-140,-85,220,55,game.ConfirmReset);Button("CANCEL",reset.transform,140,-85,220,55,game.CancelReset);reset.gameObject.SetActive(false);
+ var audio=game.gameObject.AddComponent<GameAudio>();audio.source=game.gameObject.AddComponent<AudioSource>();audio.source.playOnAwake=false;audio.spin=AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Sounds/spin.wav");audio.stop=AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Sounds/stop.wav");audio.win=AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Sounds/win.wav");game.audioPlayer=audio;
+ PlayerSettings.companyName="KaartikeyKusshwaha";PlayerSettings.productName="The Lucky Line";PlayerSettings.defaultScreenWidth=1280;PlayerSettings.defaultScreenHeight=800;PlayerSettings.WebGL.compressionFormat=WebGLCompressionFormat.Disabled;
+ EditorSceneManager.SaveScene(scene,"Assets/Scenes/Main.unity");EditorBuildSettings.scenes=new[]{new EditorBuildSettingsScene("Assets/Scenes/Main.unity",true)};AssetDatabase.SaveAssets();
+ VerifyLogic();
+ }
+ public static void VerifyLogic(){int wins=0;var payouts=new[]{5,10,20,25};for(int a=0;a<4;a++)for(int b=0;b<4;b++)for(int c=0;c<4;c++){int value=PayoutEvaluator.Evaluate(new[]{a,b,c},10,payouts);if(value>0)wins++;if(value!=(a==b&&b==c?10*payouts[a]:0))throw new Exception("Payout mismatch");}if(wins!=4)throw new Exception("Win count");var wallet=new Wallet(1000);if(!wallet.Spend(10)||wallet.Credits!=990||wallet.Spend(1000))throw new Exception("Wallet");wallet.Award(50);if(wallet.Credits!=1040)throw new Exception("Award");Debug.Log("LOGIC TESTS PASSED: 64 outcomes, 4 wins, wallet accounting");}
+ public static void BuildWeb(){VerifyLogic();var r=BuildPipeline.BuildPlayer(EditorBuildSettings.scenes,"Build/WebGL",BuildTarget.WebGL,BuildOptions.None);if(r.summary.result!=UnityEditor.Build.Reporting.BuildResult.Succeeded)throw new Exception("Web build failed");}
+ public static void Render(){EditorSceneManager.OpenScene("Assets/Scenes/Main.unity");var camera=UnityEngine.Object.FindFirstObjectByType<Camera>();Canvas.ForceUpdateCanvases();var rt=new RenderTexture(1280,800,24);camera.targetTexture=rt;camera.Render();RenderTexture.active=rt;var image=new Texture2D(1280,800,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1280,800),0,0);image.Apply();Directory.CreateDirectory("Artifacts");File.WriteAllBytes("Artifacts/first-screen.png",image.EncodeToPNG());camera.targetTexture=null;RenderTexture.active=null;}
+}
