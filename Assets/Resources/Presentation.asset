@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0d5c93e27321f246a501066cb940c04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SlotGame.PresentationConfig
-  entrySeconds: 0.65
+  entrySeconds: 0.3
   zoomSeconds: 0.7
   pullSeconds: 0.22
   leverReturnSeconds: 0.35

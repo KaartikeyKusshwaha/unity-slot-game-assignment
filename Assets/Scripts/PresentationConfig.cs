@@ -5,7 +5,7 @@ namespace SlotGame
     [CreateAssetMenu(menuName = "Slot Game/Presentation")]
     public class PresentationConfig : ScriptableObject
     {
-        public float entrySeconds = .65f;
+        public float entrySeconds = .3f;
         public float zoomSeconds = .7f;
         public float pullSeconds = .22f;
         public float leverReturnSeconds = .35f;
