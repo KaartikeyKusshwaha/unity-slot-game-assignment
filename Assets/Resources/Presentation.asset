@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0d5c93e27321f246a501066cb940c04, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SlotGame.PresentationConfig
+  entrySeconds: 0.65
+  zoomSeconds: 0.7
+  pullSeconds: 0.22
+  leverReturnSeconds: 0.35
+  firstStopSeconds: 2.2
+  stopGapSeconds: 0.45
+  lossPauseSeconds: 1.2
+  cardSeconds: 0.35
+  countSeconds: 0.9
+  collectSeconds: 0.8
+  hoverSeconds: 0.12
+  pressSeconds: 0.06
+  releaseSeconds: 0.14

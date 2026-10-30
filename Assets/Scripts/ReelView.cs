@@ -22,6 +22,20 @@ namespace SlotGame
             }
         }
 
+        public IEnumerator Settle(Sprite[] sprites, bool reduced)
+        {
+            int symbol=Current;
+            for(float time=0;time<.18f;time+=Time.deltaTime)
+            {
+                Show(symbol,sprites);
+                float offset=reduced?0:Mathf.Sin(time/.18f*Mathf.PI)*-9;
+                foreach(var cell in cells)cell.rectTransform.anchoredPosition+=Vector2.up*offset;
+                glow.color=new Color(1,.8f,.3f,(1-time/.18f)*.3f);
+                yield return null;
+            }
+            Show(symbol,sprites);glow.color=Color.clear;
+        }
+
         public IEnumerator Spin(int target, Sprite[] sprites, float duration)
         {
             glow.color = Color.clear;

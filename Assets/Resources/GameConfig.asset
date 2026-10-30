@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 14c1258628445e24a8b3954713d4da13, type: 3}
-  m_Name: GameConfig
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SlotGame.SlotConfig
   symbols:
   - {fileID: 21300000, guid: edad656505ff26e4b85c6f8b581b5903, type: 3}
