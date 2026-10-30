@@ -4,6 +4,11 @@ Unity slot-machine internship assignment, using Unity 6000.6.7f1.
 
 ![The Lucky Line running in Edge](Docs/gameplay-edge.png)
 
+## Animation preview
+Recorded from the actual WebGL game running in Edge.
+
+![Reel animation in Edge](Docs/spin-preview.gif)
+
 ## Gameplay
 Three reels, four equally likely symbols, one central winning line. Three identical centre symbols win. Start with 1,000 credits; cycle between bets of 10, 25 and 50. Seven pays 5 times the bet, cherries 10, bell 20, and BAR 25. Payout means the total amount credited after the stake has been deducted.
 
